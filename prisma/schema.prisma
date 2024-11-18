@@ -3,13 +3,26 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
+model TenantTable {
+  id        String   @id @default(uuid()) // UUID primary key for tenants
+  name      String // Name of the tenant (could be an organization or company)
+  contact   String? // Optional contact information for the tenant
+  createdAt DateTime @default(now()) // When the tenant was created
+  updatedAt DateTime @updatedAt // Last update timestamp
+
+  orchards OrchardTable[] // One-to-many relation with OrchardTable (one tenant has many orchards)
+
+  @@map("Tenant") // Optional: map this model to a specific table name in the database
+}
+
 model OrchardTable {
-  id         Int             @default(autoincrement()) // Single primary key (auto-incremented ID)
-  tenantId   Int // Tenant-specific identifier for multi-tenancy
+  id         String          @id @default(uuid()) // UUID primary key
+  tenantId   String // Reference to TenantTable (tenant-specific identifier)
+  tenant     TenantTable     @relation(fields: [tenantId], references: [id]) // Relation to TenantTable
   name       String // Name of the orchard
   location   String // Orchard location
   area       Float // Orchard area in hectares
@@ -23,17 +36,17 @@ model OrchardTable {
   employees  EmployeeTable[] @relation(name: "FK_Employee_Orchard") // Relation to employees
 
   // Composite primary key to enforce multi-tenancy
-  @@id([id, tenantId]) // Ensure the combination of 'id' and 'tenantId' is unique
+  @@unique([id, tenantId]) // Ensure the combination of 'id' and 'tenantId' is unique
   @@map("Orchard")
 }
 
 model VarietyTable {
-  id              Int          @id @default(autoincrement()) // Single primary key
+  id              String       @id @default(uuid()) // UUID primary key
   name            String // Variety name, e.g., "Arbequina", "Koroneiki"
   description     String? // Optional description
   origin          String? // Optional origin of the variety
-  orchardId       Int
-  orchardTenantId Int
+  orchardId       String // UUID reference
+  orchardTenantId String // Tenant ID reference
   orchard         OrchardTable @relation(name: "FK_Variety_Orchard", fields: [orchardId, orchardTenantId], references: [id, tenantId]) // Relation to orchard
   trees           TreeTable[]  @relation(name: "FK_Tree_Variety") // Relation to trees
 
@@ -41,12 +54,12 @@ model VarietyTable {
 }
 
 model TreeTable {
-  id              Int            @id @default(autoincrement()) // Single primary key
+  id              String         @id @default(uuid()) // UUID primary key
   plantedDate     DateTime // Date when the tree was planted
   age             Int // Age of the tree in years
-  varietyId       Int
-  orchardId       Int
-  orchardTenantId Int
+  varietyId       String // UUID reference
+  orchardId       String // UUID reference
+  orchardTenantId String // Tenant ID
   variety         VarietyTable   @relation(name: "FK_Tree_Variety", fields: [varietyId], references: [id]) // Relation to variety
   orchard         OrchardTable   @relation(name: "FK_Tree_Orchard", fields: [orchardId, orchardTenantId], references: [id, tenantId]) // Relation to orchard
   harvests        HarvestTable[] @relation(name: "FK_Harvest_Tree") // Relation to harvests
@@ -55,13 +68,13 @@ model TreeTable {
 }
 
 model HarvestTable {
-  id              Int            @id @default(autoincrement()) // Single primary key
+  id              String         @id @default(uuid()) // UUID primary key
   date            DateTime // Harvest date
   quantity        Float // Quantity harvested in kilograms
   quality         String // e.g., "Extra Virgin", "Virgin"
-  treeId          Int
-  orchardId       Int
-  orchardTenantId Int
+  treeId          String // UUID reference
+  orchardId       String // UUID reference
+  orchardTenantId String // Tenant ID
   tree            TreeTable      @relation(name: "FK_Harvest_Tree", fields: [treeId], references: [id]) // Relation to tree
   orchard         OrchardTable   @relation(name: "FK_Harvest_Orchard", fields: [orchardId, orchardTenantId], references: [id, tenantId]) // Relation to orchard
   products        ProductTable[] @relation(name: "FK_Product_Harvest") // Relation to products
@@ -70,12 +83,12 @@ model HarvestTable {
 }
 
 model EmployeeTable {
-  id              Int          @id @default(autoincrement()) // Single primary key
+  id              String       @id @default(uuid()) // UUID primary key
   name            String // Employee's name
   role            String // e.g., "Farmer", "Supervisor"
   salary          Float // Employee's salary
-  orchardId       Int
-  orchardTenantId Int
+  orchardId       String // UUID reference
+  orchardTenantId String // Tenant ID
   orchard         OrchardTable @relation(name: "FK_Employee_Orchard", fields: [orchardId, orchardTenantId], references: [id, tenantId]) // Relation to orchard
   hiredAt         DateTime     @default(now()) // Hiring date
 
@@ -83,12 +96,12 @@ model EmployeeTable {
 }
 
 model ProductTable {
-  id        Int           @id @default(autoincrement()) // Single primary key
+  id        String        @id @default(uuid()) // UUID primary key
   name      String // e.g., "Olive Oil", "Canned Olives"
   type      String // Product type
   price     Float // Product price
   createdAt DateTime      @default(now())
-  harvestId Int?
+  harvestId String? // UUID reference
   harvest   HarvestTable? @relation(name: "FK_Product_Harvest", fields: [harvestId], references: [id]) // Relation to harvest
 
   @@map("Product")
