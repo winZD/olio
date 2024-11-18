@@ -8,15 +8,16 @@ datasource db {
 }
 
 model TenantTable {
-  id        String   @id @default(uuid()) // UUID primary key for tenants
+  id        String         @id @default(uuid()) // UUID primary key for tenants
   name      String // Name of the tenant (could be an organization or company)
   contact   String? // Optional contact information for the tenant
-  createdAt DateTime @default(now()) // When the tenant was created
-  updatedAt DateTime @updatedAt // Last update timestamp
+  createdAt DateTime       @default(now()) // When the tenant was created
+  updatedAt DateTime       @updatedAt // Last update timestamp
+  email     String         @unique
+  password  String
+  orchards  OrchardTable[] // One-to-many relation with OrchardTable (one tenant has many orchards)
 
-  orchards OrchardTable[] // One-to-many relation with OrchardTable (one tenant has many orchards)
-
-  @@map("Tenant") // Optional: map this model to a specific table name in the database
+  @@map("Tenant")
 }
 
 model OrchardTable {
@@ -105,4 +106,16 @@ model ProductTable {
   harvest   HarvestTable? @relation(name: "FK_Product_Harvest", fields: [harvestId], references: [id]) // Relation to harvest
 
   @@map("Product")
+}
+
+model RefreshTokenTable {
+  id        String   @id @default(uuid()) // UUID primary key
+  tenantId  String
+  token     String
+  createdAt DateTime
+  expiresAt DateTime
+  status    String   @default("GRANTED") //GRANTED || REVOKED
+
+  @@index([tenantId])
+  @@map("RefreshTokens")
 }
