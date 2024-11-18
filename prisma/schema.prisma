@@ -1,0 +1,113 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model OrchardTable {
+  id         Int // Unique identifier
+  tenantId   Int // Tenant-specific identifier for multi-tenancy
+  name       String
+  location   String
+  area       Float // Orchard area in hectares
+  soilType   String // e.g., "Sandy", "Clay", "Loam"
+  irrigation Boolean // Whether the orchard has irrigation
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  trees      TreeTable[]     @relation(name: "FK_Tree_Orchard")
+  varieties  VarietyTable[]  @relation(name: "FK_Variety_Orchard")
+  harvests   HarvestTable[]  @relation(name: "FK_Harvest_Orchard")
+  employees  EmployeeTable[] @relation(name: "FK_Employee_Orchard")
+
+  // Composite primary key
+  @@id([id, tenantId])
+  @@map("Orchard")
+}
+
+model VarietyTable {
+  id              Int // Unique identifier
+  tenantId        Int // Tenant-specific identifier for multi-tenancy
+  name            String // Variety name, e.g., "Arbequina", "Koroneiki"
+  description     String? // Optional description
+  origin          String? // Optional origin of the variety
+  orchardId       Int
+  orchardTenantId Int
+  orchard         OrchardTable @relation(name: "FK_Variety_Orchard", fields: [orchardId, orchardTenantId], references: [id, tenantId])
+  trees           TreeTable[]  @relation(name: "FK_Tree_Variety")
+
+  // Composite primary key
+  @@id([id, tenantId])
+  @@map("Variety")
+}
+
+model TreeTable {
+  id              Int // Unique identifier
+  tenantId        Int // Tenant-specific identifier for multi-tenancy
+  plantedDate     DateTime // Date when the tree was planted
+  age             Int // Age of the tree in years
+  varietyId       Int
+  varietyTenantId Int
+  orchardId       Int
+  orchardTenantId Int
+  variety         VarietyTable   @relation(name: "FK_Tree_Variety", fields: [varietyId, varietyTenantId], references: [id, tenantId])
+  orchard         OrchardTable   @relation(name: "FK_Tree_Orchard", fields: [orchardId, orchardTenantId], references: [id, tenantId])
+  harvests        HarvestTable[] @relation(name: "FK_Harvest_Tree")
+
+  // Composite primary key
+  @@id([id, tenantId])
+  @@map("Tree")
+}
+
+model HarvestTable {
+  id              Int // Unique identifier
+  tenantId        Int // Tenant-specific identifier for multi-tenancy
+  date            DateTime
+  quantity        Float // Quantity harvested in kilograms
+  quality         String // e.g., "Extra Virgin", "Virgin"
+  treeId          Int
+  treeTenantId    Int
+  orchardId       Int
+  orchardTenantId Int
+  tree            TreeTable      @relation(name: "FK_Harvest_Tree", fields: [treeId, treeTenantId], references: [id, tenantId])
+  orchard         OrchardTable   @relation(name: "FK_Harvest_Orchard", fields: [orchardId, orchardTenantId], references: [id, tenantId])
+  products        ProductTable[] @relation(name: "FK_Product_Harvest") // Back-relation to ProductTable
+
+  // Composite primary key
+  @@id([id, tenantId])
+  @@map("Harvest")
+}
+
+model EmployeeTable {
+  id              Int // Unique identifier
+  tenantId        Int // Tenant-specific identifier for multi-tenancy
+  name            String
+  role            String // e.g., "Farmer", "Supervisor"
+  salary          Float
+  orchardId       Int
+  orchardTenantId Int
+  orchard         OrchardTable @relation(name: "FK_Employee_Orchard", fields: [orchardId, orchardTenantId], references: [id, tenantId])
+  hiredAt         DateTime     @default(now())
+
+  // Composite primary key
+  @@id([id, tenantId])
+  @@map("Employee")
+}
+
+model ProductTable {
+  id              Int // Unique identifier
+  tenantId        Int // Tenant-specific identifier for multi-tenancy
+  name            String // e.g., "Olive Oil", "Canned Olives"
+  type            String // Product type
+  price           Float
+  createdAt       DateTime      @default(now())
+  harvestId       Int?
+  harvestTenantId Int?
+  harvest         HarvestTable? @relation(name: "FK_Product_Harvest", fields: [harvestId, harvestTenantId], references: [id, tenantId])
+
+  // Composite primary key
+  @@id([id, tenantId])
+  @@map("Product")
+}
