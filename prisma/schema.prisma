@@ -8,106 +8,88 @@ datasource db {
 }
 
 model OrchardTable {
-  id         Int // Unique identifier
+  id         Int             @default(autoincrement()) // Single primary key (auto-incremented ID)
   tenantId   Int // Tenant-specific identifier for multi-tenancy
-  name       String
-  location   String
+  name       String // Name of the orchard
+  location   String // Orchard location
   area       Float // Orchard area in hectares
   soilType   String // e.g., "Sandy", "Clay", "Loam"
   irrigation Boolean // Whether the orchard has irrigation
   createdAt  DateTime        @default(now())
   updatedAt  DateTime        @updatedAt
-  trees      TreeTable[]     @relation(name: "FK_Tree_Orchard")
-  varieties  VarietyTable[]  @relation(name: "FK_Variety_Orchard")
-  harvests   HarvestTable[]  @relation(name: "FK_Harvest_Orchard")
-  employees  EmployeeTable[] @relation(name: "FK_Employee_Orchard")
+  trees      TreeTable[]     @relation(name: "FK_Tree_Orchard") // Relation to trees
+  varieties  VarietyTable[]  @relation(name: "FK_Variety_Orchard") // Relation to varieties
+  harvests   HarvestTable[]  @relation(name: "FK_Harvest_Orchard") // Relation to harvests
+  employees  EmployeeTable[] @relation(name: "FK_Employee_Orchard") // Relation to employees
 
-  // Composite primary key
-  @@id([id, tenantId])
+  // Composite primary key to enforce multi-tenancy
+  @@id([id, tenantId]) // Ensure the combination of 'id' and 'tenantId' is unique
   @@map("Orchard")
 }
 
 model VarietyTable {
-  id              Int // Unique identifier
-  tenantId        Int // Tenant-specific identifier for multi-tenancy
+  id              Int          @id @default(autoincrement()) // Single primary key
   name            String // Variety name, e.g., "Arbequina", "Koroneiki"
   description     String? // Optional description
   origin          String? // Optional origin of the variety
   orchardId       Int
   orchardTenantId Int
-  orchard         OrchardTable @relation(name: "FK_Variety_Orchard", fields: [orchardId, orchardTenantId], references: [id, tenantId])
-  trees           TreeTable[]  @relation(name: "FK_Tree_Variety")
+  orchard         OrchardTable @relation(name: "FK_Variety_Orchard", fields: [orchardId, orchardTenantId], references: [id, tenantId]) // Relation to orchard
+  trees           TreeTable[]  @relation(name: "FK_Tree_Variety") // Relation to trees
 
-  // Composite primary key
-  @@id([id, tenantId])
   @@map("Variety")
 }
 
 model TreeTable {
-  id              Int // Unique identifier
-  tenantId        Int // Tenant-specific identifier for multi-tenancy
+  id              Int            @id @default(autoincrement()) // Single primary key
   plantedDate     DateTime // Date when the tree was planted
   age             Int // Age of the tree in years
   varietyId       Int
-  varietyTenantId Int
   orchardId       Int
   orchardTenantId Int
-  variety         VarietyTable   @relation(name: "FK_Tree_Variety", fields: [varietyId, varietyTenantId], references: [id, tenantId])
-  orchard         OrchardTable   @relation(name: "FK_Tree_Orchard", fields: [orchardId, orchardTenantId], references: [id, tenantId])
-  harvests        HarvestTable[] @relation(name: "FK_Harvest_Tree")
+  variety         VarietyTable   @relation(name: "FK_Tree_Variety", fields: [varietyId], references: [id]) // Relation to variety
+  orchard         OrchardTable   @relation(name: "FK_Tree_Orchard", fields: [orchardId, orchardTenantId], references: [id, tenantId]) // Relation to orchard
+  harvests        HarvestTable[] @relation(name: "FK_Harvest_Tree") // Relation to harvests
 
-  // Composite primary key
-  @@id([id, tenantId])
   @@map("Tree")
 }
 
 model HarvestTable {
-  id              Int // Unique identifier
-  tenantId        Int // Tenant-specific identifier for multi-tenancy
-  date            DateTime
+  id              Int            @id @default(autoincrement()) // Single primary key
+  date            DateTime // Harvest date
   quantity        Float // Quantity harvested in kilograms
   quality         String // e.g., "Extra Virgin", "Virgin"
   treeId          Int
-  treeTenantId    Int
   orchardId       Int
   orchardTenantId Int
-  tree            TreeTable      @relation(name: "FK_Harvest_Tree", fields: [treeId, treeTenantId], references: [id, tenantId])
-  orchard         OrchardTable   @relation(name: "FK_Harvest_Orchard", fields: [orchardId, orchardTenantId], references: [id, tenantId])
-  products        ProductTable[] @relation(name: "FK_Product_Harvest") // Back-relation to ProductTable
+  tree            TreeTable      @relation(name: "FK_Harvest_Tree", fields: [treeId], references: [id]) // Relation to tree
+  orchard         OrchardTable   @relation(name: "FK_Harvest_Orchard", fields: [orchardId, orchardTenantId], references: [id, tenantId]) // Relation to orchard
+  products        ProductTable[] @relation(name: "FK_Product_Harvest") // Relation to products
 
-  // Composite primary key
-  @@id([id, tenantId])
   @@map("Harvest")
 }
 
 model EmployeeTable {
-  id              Int // Unique identifier
-  tenantId        Int // Tenant-specific identifier for multi-tenancy
-  name            String
+  id              Int          @id @default(autoincrement()) // Single primary key
+  name            String // Employee's name
   role            String // e.g., "Farmer", "Supervisor"
-  salary          Float
+  salary          Float // Employee's salary
   orchardId       Int
   orchardTenantId Int
-  orchard         OrchardTable @relation(name: "FK_Employee_Orchard", fields: [orchardId, orchardTenantId], references: [id, tenantId])
-  hiredAt         DateTime     @default(now())
+  orchard         OrchardTable @relation(name: "FK_Employee_Orchard", fields: [orchardId, orchardTenantId], references: [id, tenantId]) // Relation to orchard
+  hiredAt         DateTime     @default(now()) // Hiring date
 
-  // Composite primary key
-  @@id([id, tenantId])
   @@map("Employee")
 }
 
 model ProductTable {
-  id              Int // Unique identifier
-  tenantId        Int // Tenant-specific identifier for multi-tenancy
-  name            String // e.g., "Olive Oil", "Canned Olives"
-  type            String // Product type
-  price           Float
-  createdAt       DateTime      @default(now())
-  harvestId       Int?
-  harvestTenantId Int?
-  harvest         HarvestTable? @relation(name: "FK_Product_Harvest", fields: [harvestId, harvestTenantId], references: [id, tenantId])
+  id        Int           @id @default(autoincrement()) // Single primary key
+  name      String // e.g., "Olive Oil", "Canned Olives"
+  type      String // Product type
+  price     Float // Product price
+  createdAt DateTime      @default(now())
+  harvestId Int?
+  harvest   HarvestTable? @relation(name: "FK_Product_Harvest", fields: [harvestId], references: [id]) // Relation to harvest
 
-  // Composite primary key
-  @@id([id, tenantId])
   @@map("Product")
 }
