@@ -21,7 +21,7 @@ model TenantTable {
 }
 
 model OrchardTable {
-  id         String          @id @default(uuid()) // UUID primary key
+  id         String          @default(uuid()) // UUID primary key
   tenantId   String // Reference to TenantTable (tenant-specific identifier)
   tenant     TenantTable     @relation(fields: [tenantId], references: [id]) // Relation to TenantTable
   name       String // Name of the orchard
@@ -37,7 +37,7 @@ model OrchardTable {
   employees  EmployeeTable[] @relation(name: "FK_Employee_Orchard") // Relation to employees
 
   // Composite primary key to enforce multi-tenancy
-  @@unique([id, tenantId]) // Ensure the combination of 'id' and 'tenantId' is unique
+  @@id([id, tenantId]) // Ensure the combination of 'id' and 'tenantId' is unique
   @@map("Orchard")
 }
 
