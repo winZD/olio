@@ -4,22 +4,22 @@ const prisma = new PrismaClient();
 
 async function main() {
   // Clear existing data
-  await prisma.tenantTable.deleteMany();
-  console.log("Existing tenants cleared!");
+  await prisma.userTable.deleteMany();
+  console.log("Existing users cleared!");
 
-  // Generate 100 tenants
-  const tenants = [];
-  for (let i = 0; i < 100; i++) {
-    const tenant = await prisma.tenantTable.create({
+  // Generate 1000 users
+  console.log("Creating users...");
+  for (let i = 0; i < 1000; i++) {
+    await prisma.userTable.create({
       data: {
         id: uuidv4(),
-        name: `Tenant-${i + 1}`,
+        name: `User-${i + 1}`,
         contact: `+1-800-${Math.floor(1000000 + Math.random() * 9000000)}`, // Random 7-digit phone number
-        email: `tenant${i + 1}@example.com`,
+        email: `user${i + 1}@example.com`,
         password: `password${i + 1}`, // Simple password for demonstration
       },
     });
-    tenants.push(tenant);
+    console.log("user " + i + " created");
   }
 }
 
@@ -29,5 +29,6 @@ main()
     process.exit(1);
   })
   .finally(async () => {
+    console.log("1000 users created...");
     await prisma.$disconnect();
   });
