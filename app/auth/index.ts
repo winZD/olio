@@ -9,7 +9,6 @@ type TToken = {
   tokenId: string;
   userId: string;
 };
-const COOKIE_JWT_SECRET = process.env.COOKIE_JWT_SECRET;
 
 const generateAccessToken = (data: TToken) =>
   jwt.sign(data, process.env.COOKIE_JWT_SECRET as string, {
