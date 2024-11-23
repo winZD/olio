@@ -2,7 +2,6 @@ import { serialize, parse } from "cookie";
 import { addDays, addMinutes } from "date-fns";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
-import bcrypt from "bcrypt";
 import { db } from "~/db";
 import { redirect } from "@remix-run/node";
 
@@ -115,7 +114,7 @@ export const createHeaderCookies = (
   return headers;
 };
 
-export async function hashPassword(password: string): Promise<string> {
+/* export async function hashPassword(password: string): Promise<string> {
   const saltRounds = 10;
   try {
     return await bcrypt.hash(password, saltRounds);
@@ -123,4 +122,4 @@ export async function hashPassword(password: string): Promise<string> {
     console.error("Error hashing password:", error);
     throw new Error("Hashing failed");
   }
-}
+} */
