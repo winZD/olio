@@ -1,9 +1,10 @@
 import { serialize, parse } from "cookie";
 import { addDays, addMinutes } from "date-fns";
 import jwt from "jsonwebtoken";
-/* import { v4 as uuidv4 } from "uuid"; */
+import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
 import { db } from "~/db";
+import { redirect } from "@remix-run/node";
 
 type TToken = {
   tokenId: string;
@@ -33,32 +34,56 @@ export const verifyToken = (
     return null;
   }
 };
-/* export const verifyToken = (
-  token: string | undefined | null
-): TToken | null => {
-  if (!token) return null;
 
-  try {
-    const verified = jwt.verify(
-      token,
-      process.env.COOKIE_JWT_SECRET as string,
-      {
-        algorithms: ["HS256"],
-      }
-    );
-
-    if (
-      typeof verified === "object" &&
-      "tokenId" in verified &&
-      "userId" in verified
-    ) {
-      return verified as TToken;
+export const getUserFromRequest = async (request: Request) => {
+  const cookies = parse(request.headers.get("Cookie") ?? "");
+  const at = verifyToken(cookies["at"]);
+  if (at) {
+    return await db.userTable.findUniqueOrThrow({
+      where: { id: at.userId },
+    });
+  } else {
+    const rt = verifyToken(cookies["rt"]);
+    if (rt) {
+      return await db.userTable.findUniqueOrThrow({
+        where: { id: rt.userId },
+      });
+    } else {
+      return null;
     }
-
-    return null;
-  } catch (error) {
-    console.error("Token verification failed:", error);
-    return null;
   }
 };
- */
+
+export const revokeOldRefreshToken = async (tokenId: string) => {
+  console.log("revokeOldRefreshToken");
+  try {
+    await db.refreshTokenTable.update({
+      where: { id: tokenId },
+      data: { status: "REVOKED" },
+    });
+  } catch (e) {
+    throw redirect("/logout");
+  }
+};
+
+export const createNewTokens = async (userId: string, familyId?: string) => {
+  console.log("createNewTokens");
+
+  const tokenId = uuidv4();
+  const accessToken = generateAccessToken({ tokenId, userId });
+  const refreshToken = generateRefreshToken({ tokenId, userId });
+
+  await db.refreshTokenTable.create({
+    data: {
+      id: tokenId,
+      userId,
+      createdAt: new Date(),
+      expiresAt: addDays(new Date(), 30),
+      familyId: familyId || tokenId,
+      token: refreshToken,
+      status: "GRANTED",
+    },
+  });
+
+  return { accessToken, refreshToken };
+};

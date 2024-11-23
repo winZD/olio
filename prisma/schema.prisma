@@ -115,7 +115,8 @@ model RefreshTokenTable {
   createdAt DateTime
   expiresAt DateTime
   status    String   @default("GRANTED") //GRANTED || REVOKED
+  familyId  String
 
-  @@index([userId])
+  @@index([familyId])
   @@map("RefreshTokens")
 }
