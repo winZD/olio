@@ -87,3 +87,40 @@ export const createNewTokens = async (userId: string, familyId?: string) => {
 
   return { accessToken, refreshToken };
 };
+
+export const createHeaderCookies = (
+  accessToken: string,
+  refreshToken: string
+) => {
+  console.log("createHeaderCookies");
+  const headers = new Headers();
+  headers.append(
+    "Set-Cookie",
+    serialize("at", accessToken, {
+      path: "/",
+      sameSite: "lax",
+      domain: process.env.COOKIE_DOMAIN,
+      expires: accessToken ? addMinutes(new Date(), 30) : new Date(0),
+    })
+  );
+  headers.append(
+    "Set-Cookie",
+    serialize("rt", refreshToken, {
+      path: "/",
+      sameSite: "lax",
+      domain: process.env.COOKIE_DOMAIN,
+      expires: refreshToken ? addDays(new Date(), 30) : new Date(0),
+    })
+  );
+  return headers;
+};
+
+export async function hashPassword(password: string): Promise<string> {
+  const saltRounds = 10;
+  try {
+    return await bcrypt.hash(password, saltRounds);
+  } catch (error) {
+    console.error("Error hashing password:", error);
+    throw new Error("Hashing failed");
+  }
+}
