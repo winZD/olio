@@ -1,55 +1,77 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
-
+import * as zod from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@remix-run/react";
-import { useRemixForm } from "remix-hook-form";
+import { getValidatedFormData, useRemixForm } from "remix-hook-form";
 import { createHeaderCookies, createNewTokens } from "~/auth";
 import { db } from "~/db";
-export async function loader() {
-  return {};
-}
+import { parse } from "cookie";
 
-export async function action({ request, params }: ActionFunctionArgs) {
+const schema = zod.object({
+  email: zod.string().min(1),
+  password: zod.string().min(1),
+});
+type FormData = zod.infer<typeof schema>;
+
+export async function action({ request }: ActionFunctionArgs) {
+  const schema = zod.object({
+    email: zod.string().min(1),
+    password: zod.string().min(1),
+  });
+  type FormData = zod.infer<typeof schema>;
+
+  const resolver = zodResolver(schema);
+  const {
+    errors,
+    data,
+    receivedValues: defaultValues,
+  } = await getValidatedFormData<FormData>(request, resolver);
+  console.log(data);
+  if (errors) {
+    // The keys "errors" and "defaultValues" are picked up automatically by useRemixForm
+    console.log(errors);
+    return defaultValues;
+  }
+
+  if (!data) {
+    return null;
+  }
+
   const user = await db.userTable.findFirst({
     where: {
-      email: "user320@example.com",
+      email: data.email,
     },
   });
 
   console.log(user);
-
+  if (!user) {
+    return null;
+  }
   const { accessToken, refreshToken } = await createNewTokens(
-    "001a34f9-8607-4a48-aba2-0b1a07a90c44"
+    user?.id as string
   );
-  console.log("form");
+
+  // const isValid = await bcrypt.compare(data.password, user.password);
+
   const headers = createHeaderCookies(accessToken, refreshToken);
   return redirect("/dashboard", { headers });
 }
 export default function Index() {
-  const formMethods = useRemixForm<{ email: string; password: string }>({
-    defaultValues: { email: "", password: "" },
+  const resolver = zodResolver(schema);
+  const {
+    handleSubmit,
+    formState: { errors },
+    register,
+  } = useRemixForm<FormData>({
     mode: "onSubmit",
-    stringifyAllValues: true,
+    resolver,
   });
-  const { handleSubmit } = formMethods;
 
   return (
     <div className="flex h-full w-full items-center justify-center">
-      {/*   <HookForm
-          formMethods={formMethods}
-          onSubmit={handleSubmit}
-          method="POST"
-          className="flex flex-col gap-4 rounded border p-8 shadow"
-        >
-          <InputField label="Email" name="email" />
-          <InputField label="Lozinka" name="password" />
-  
-          <button type="submit" className="rounded bg-slate-200 p-4">
-            {t('login')}
-          </button>
-        </HookForm> */}
       <Form
-        method="post"
+        method="POST"
         className="flex flex-col gap-4 rounded border p-6 shadow bg-lime-700 text-white justify-center items-center"
         onSubmit={handleSubmit}
       >
@@ -57,15 +79,19 @@ export default function Index() {
         <label htmlFor="email">Email</label>
         <input
           className="rounded border-slate-200 outline-none text-black"
-          name="email"
-          type="email"
+          type="text"
+          {...register("email")}
         />
+        {errors.email && <p className="text-red-600">{errors.email.message}</p>}
         <label htmlFor="password">Lozinka</label>
         <input
           className="rounded border-slate-200 outline-none text-black"
-          name="password"
           type="password"
+          {...register("password")}
         />
+        {errors.password && (
+          <p className="text-red-600">{errors.password.message}</p>
+        )}
         <div>
           <button
             type="submit"
@@ -74,7 +100,7 @@ export default function Index() {
             Prijavi se
           </button>{" "}
           <button
-            type="submit"
+            type="button"
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           >
             Registriraj se
