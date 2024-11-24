@@ -9,7 +9,7 @@ export const meta: MetaFunction = () => {
 
 export default function Index() {
   return (
-    <div className="bg-lime-50 h-screen">
+    <div className="bg-lime-50 h-full">
       <header className="flex items-center justify-between gap-8 border-b p-2 ">
         <h1 className="text-2xl">OLIO</h1>
         <button className="rounded-md bg-lime-700 text-white hover:bg-lime-800 p-2">

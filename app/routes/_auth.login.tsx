@@ -35,7 +35,6 @@ export default function Index() {
 
   return (
     <div className="flex h-full w-full items-center justify-center">
-      LOOGIN
       {/*   <HookForm
           formMethods={formMethods}
           onSubmit={handleSubmit}
@@ -51,20 +50,37 @@ export default function Index() {
         </HookForm> */}
       <Form
         method="post"
-        className="flex flex-col gap-4 rounded border p-8 shadow  bg-slate-500"
+        className="flex flex-col gap-4 rounded border p-6 shadow bg-lime-700 text-white justify-center items-center"
         onSubmit={handleSubmit}
       >
+        <span className="font-bold text-4xl">OLIO</span>
+        <label htmlFor="email">Email</label>
         <input
-          className="rounded border-slate-200 outline-none"
+          className="rounded border-slate-200 outline-none text-black"
           name="email"
           type="email"
         />
+        <label htmlFor="password">Lozinka</label>
         <input
-          className="rounded border-slate-200 outline-none"
+          className="rounded border-slate-200 outline-none text-black"
           name="password"
           type="password"
         />
-        <button type="submit">KLIK</button>
+        <div>
+          <button
+            type="submit"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Prijavi se
+          </button>{" "}
+          <button
+            type="submit"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Registriraj se
+          </button>
+        </div>{" "}
+        <span>Promijeni lozinku</span>
       </Form>
     </div>
   );
