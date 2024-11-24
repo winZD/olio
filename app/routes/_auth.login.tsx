@@ -2,7 +2,7 @@ import type { ActionFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import * as zod from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form } from "@remix-run/react";
+import { Form, useActionData } from "@remix-run/react";
 import { getValidatedFormData, useRemixForm } from "remix-hook-form";
 import { createHeaderCookies, createNewTokens } from "~/auth";
 import { db } from "~/db";
@@ -14,6 +14,7 @@ const schema = zod.object({
 });
 type FormData = zod.infer<typeof schema>;
 
+const resolver = zodResolver(schema);
 export async function action({ request }: ActionFunctionArgs) {
   const schema = zod.object({
     email: zod.string().min(1),
@@ -21,7 +22,6 @@ export async function action({ request }: ActionFunctionArgs) {
   });
   type FormData = zod.infer<typeof schema>;
 
-  const resolver = zodResolver(schema);
   const {
     errors,
     data,
@@ -31,7 +31,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (errors) {
     // The keys "errors" and "defaultValues" are picked up automatically by useRemixForm
     console.log(errors);
-    return defaultValues;
+    return { errors, defaultValues };
   }
 
   if (!data) {
@@ -58,6 +58,7 @@ export async function action({ request }: ActionFunctionArgs) {
   return redirect("/dashboard", { headers });
 }
 export default function Index() {
+  /* const actionData = useActionData<typeof action>();  */
   const resolver = zodResolver(schema);
   const {
     handleSubmit,
@@ -65,7 +66,6 @@ export default function Index() {
     register,
   } = useRemixForm<FormData>({
     mode: "onSubmit",
-    resolver,
   });
 
   return (
@@ -82,6 +82,9 @@ export default function Index() {
           type="text"
           {...register("email")}
         />
+        {/* SERVER MSG ERROR VALIDATION  {actionData?.errors.email && (
+          <p className="text-red-600">{actionData.email?.message}</p>
+        )} */}
         {errors.email && <p className="text-red-600">{errors.email.message}</p>}
         <label htmlFor="password">Lozinka</label>
         <input
