@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "~/db";
 import { redirect } from "@remix-run/node";
+import bcrypt from "bcryptjs";
 
 type TToken = {
   tokenId: string;
@@ -114,7 +115,7 @@ export const createHeaderCookies = (
   return headers;
 };
 
-/* export async function hashPassword(password: string): Promise<string> {
+export async function hashPassword(password: string): Promise<string> {
   const saltRounds = 10;
   try {
     return await bcrypt.hash(password, saltRounds);
@@ -122,4 +123,4 @@ export const createHeaderCookies = (
     console.error("Error hashing password:", error);
     throw new Error("Hashing failed");
   }
-} */
+}

@@ -2,7 +2,7 @@ import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { Outlet } from "@remix-run/react";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  return redirect("/login");
+  return {};
 }
 
 export default function Index() {
