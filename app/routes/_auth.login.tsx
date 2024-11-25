@@ -66,6 +66,7 @@ export default function Index() {
     register,
   } = useRemixForm<FormData>({
     mode: "onSubmit",
+    resolver,
   });
 
   return (

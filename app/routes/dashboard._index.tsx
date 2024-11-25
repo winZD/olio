@@ -1,8 +1,30 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { Outlet } from "@remix-run/react";
+import { parse } from "cookie";
+import { getUserFromRequest } from "~/auth";
+import { db } from "~/db";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  return {};
+  console.log(request);
+
+  const cookieHeader = request.headers.get("Cookie");
+  const cookies = await parse(cookieHeader || "");
+  console.log(cookies);
+
+  // Fetch the user from the request
+  const user = await getUserFromRequest(request);
+
+  // Check if the user exists in the database
+  if (user) {
+    const existedUser = await db.userTable.findUniqueOrThrow({
+      where: { email: user.email },
+    });
+    console.log("User:", user);
+    if (existedUser) {
+      return { existedUser };
+    }
+  }
+  return redirect("/login");
 }
 
 export default function Index() {
