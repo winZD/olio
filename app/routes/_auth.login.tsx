@@ -55,7 +55,7 @@ export async function action({ request }: ActionFunctionArgs) {
   // const isValid = await bcrypt.compare(data.password, user.password);
 
   const headers = createHeaderCookies(accessToken, refreshToken);
-  return redirect("/dashboard", { headers });
+  return redirect("/admin/dashboard", { headers });
 }
 export default function Index() {
   /* const actionData = useActionData<typeof action>();  */
