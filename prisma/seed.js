@@ -1,15 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 const prisma = new PrismaClient();
-
 async function main() {
   // Clear existing data
+
   await prisma.userTable.deleteMany();
   console.log("Existing users cleared!");
 
-  // Generate 1000 users
+  // Generate 10 users
   console.log("Creating users...");
-  for (let i = 0; i < 1000; i++) {
+  for (let i = 0; i < 10; i++) {
     await prisma.userTable.create({
       data: {
         id: uuidv4(),
@@ -29,6 +29,6 @@ main()
     process.exit(1);
   })
   .finally(async () => {
-    console.log("1000 users created...");
+    console.log("10 users created...");
     await prisma.$disconnect();
   });

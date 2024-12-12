@@ -29,15 +29,15 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export default function Index() {
   return (
-    <div className="bg-lime-50 h-full text-black">
+    <div className="bg-lime-50 flex flex-col h-full text-black">
       <header className="flex items-center justify-between gap-8 border-b p-2 bg-lime-100">
         <h1 className="text-2xl">OLIO</h1>
         <button className="rounded-md bg-lime-700 text-white hover:bg-lime-800 p-2">
           Odjavi se
         </button>
       </header>
-      <div className="flex">
-        <aside className="flex flex-col gap-3 p-3 bg-white">
+      <div className="flex h-full">
+        <aside className="flex flex-col gap-3 p-8 bg-white">
           <NavLink className={"uppercase"} to={"dashboard"}>
             dashboard
           </NavLink>
@@ -45,7 +45,7 @@ export default function Index() {
             orchards
           </NavLink>
         </aside>
-        <main className="flex flex-col justify-center items-center">
+        <main className="flex flex-col justify-center items-center h-full">
           <Outlet />
         </main>
       </div>
