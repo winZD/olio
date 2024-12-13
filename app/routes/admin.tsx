@@ -45,7 +45,7 @@ export default function Index() {
             orchards
           </NavLink>
         </aside>
-        <main className="flex flex-col justify-center items-center h-full">
+        <main className="flex flex-col justify-center items-center h-full w-full">
           <Outlet />
         </main>
       </div>
