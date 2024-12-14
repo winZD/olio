@@ -44,8 +44,8 @@ const columnDefs = [
 export default function Index() {
   return (
     <div>
-      {" "}
-      <AgGridReact rowData={rowData} columnDefs={colDefs} />
+      {/*  {" "}
+      <AgGridReact rowData={rowData} columnDefs={colDefs} /> */}
     </div>
   );
 }

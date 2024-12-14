@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { NavLink, Outlet } from "@remix-run/react";
+import { NavLink, Outlet, useParams } from "@remix-run/react";
 import { parse } from "cookie";
 import { getUserFromRequest } from "~/auth";
 import { db } from "~/db";
@@ -28,6 +28,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export default function Index() {
+  const params = useParams();
+
+  console.log(params);
   return (
     <div className="bg-lime-50 flex flex-col h-full text-black">
       <header className="flex items-center justify-between gap-8 border-b p-2 bg-lime-100">
@@ -38,10 +41,10 @@ export default function Index() {
       </header>
       <div className="flex h-full">
         <aside className="flex flex-col gap-3 p-8 bg-white">
-          <NavLink className={"uppercase"} to={"dashboard"}>
+          <NavLink className={"uppercase"} to={`${params?.userId}/dashboard`}>
             dashboard
           </NavLink>
-          <NavLink className={"uppercase"} to={"orchards"}>
+          <NavLink className={"uppercase"} to={`${params?.userId}/orchards`}>
             orchards
           </NavLink>
         </aside>
