@@ -5,11 +5,9 @@ import { getUserFromRequest } from "~/auth";
 import { db } from "~/db";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  console.log(request);
-
   const cookieHeader = request.headers.get("Cookie");
   const cookies = await parse(cookieHeader || "");
-  console.log(cookies);
+  /*   console.log(cookies); */
 
   // Fetch the user from the request
   const user = await getUserFromRequest(request);

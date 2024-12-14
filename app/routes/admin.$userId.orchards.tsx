@@ -1,8 +1,18 @@
+import { LoaderFunctionArgs } from "@remix-run/node";
 import { AgGridReact } from "ag-grid-react";
+import { db } from "~/db";
 
-export const loader = async () => {
-  return { ok: true };
-};
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const { userId } = params;
+
+  // Use an aggregation query to calculate the total area
+  const harvestArea = await db.orchardTable.aggregate({
+    where: { userId },
+    _sum: { area: true }, // Summing the 'area' field
+  });
+  return { userId, harvestArea };
+}
+
 const columnDefs = [
   {
     headerName: "Orchard Name",
