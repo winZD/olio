@@ -8,26 +8,28 @@ import { db } from "~/db";
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { userId } = params;
 
-  // Execute raw SQL query
-  const result = await db.$queryRaw<{ userName: string; totalArea: number }[]>`
+  const result = await db.$queryRaw<{ totalArea: number; treeCount: number }[]>`
     SELECT 
-      u.name AS userName, 
-      COALESCE(SUM(o.area), 0) AS totalArea
-
-    FROM 
-      User u
-    LEFT JOIN 
-      Orchard o 
-    ON 
-      u.id = o.userId
-    WHERE 
-      u.id = ${userId}
-    GROUP BY 
-      u.name;
+      COALESCE(
+        (SELECT SUM(o.area)
+         FROM Orchard o
+         WHERE o.userId = ${userId}), 
+        0
+      ) AS totalArea,
+      COALESCE(
+        (SELECT COUNT(t.id)
+         FROM Tree t
+         INNER JOIN Orchard o ON t.orchardId = o.id AND t.orchardUserId = o.userId
+         WHERE o.userId = ${userId}),
+        0
+      ) AS treeCount
   `;
+
   console.log(result);
-  return { userId, totalArea: result[0].totalArea };
+  const { totalArea, treeCount } = result[0];
+  return { userId, totalArea, treeCount };
 }
+
 const columnDefs = [
   {
     headerName: "Orchard Name",
@@ -71,14 +73,14 @@ interface ICar {
   price: number;
 }
 export default function Index() {
-  const { userId, totalArea } = useLoaderData<typeof loader>();
+  const { userId, totalArea, treeCount } = useLoaderData<typeof loader>();
 
   const [rowData, setRowData] = useState([
     { make: "Tesla", model: "Model Y", price: 64950, electric: true },
     { make: "Ford", model: "F-Series", price: 33850, electric: false },
     { make: "Toyota", model: "Corolla", price: 29600, electric: false },
   ]);
-
+  console.log(treeCount);
   // Column Definitions: Defines the columns to be displayed.
   const [colDefs, setColDefs] = useState<{ field: string }[]>([
     { field: "make" },
@@ -89,7 +91,7 @@ export default function Index() {
 
   return (
     <>
-      <FarmStatus area={totalArea} trees={0} production={0} />
+      <FarmStatus area={totalArea} trees={Number(treeCount)} production={0} />
       <div className="flex flex-col flex-1 p-5 bg-white w-full">
         <AgGrid columnDefs={colDefs} rowData={rowData} />
       </div>
