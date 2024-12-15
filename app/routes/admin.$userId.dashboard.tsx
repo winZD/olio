@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AgGrid } from "~/components/AgGrid";
 import FarmStatus from "~/components/FarmStatus";
 import { db } from "~/db";
+const { Chart } = await import("chart.js");
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { userId } = params;

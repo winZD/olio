@@ -19,6 +19,7 @@
     "@types/jsonwebtoken": "^9.0.7",
     "ag-grid-react": "^33.0.1",
     "bcryptjs": "^2.4.3",
+    "chart.js": "^4.4.7",
     "date-fns": "^4.1.0",
     "isbot": "^4.1.0",
     "jsonwebtoken": "^9.0.2",
