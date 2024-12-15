@@ -18,7 +18,7 @@ const FarmStatus = ({
         <p className="text-xl font-bold text-green-600">{trees}</p>
       </div>
       <div className="bg-white p-4 rounded-md shadow-sm border border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-700">Yield</h3>
+        <h3 className="text-lg font-semibold text-gray-700">Quantity</h3>
         <p className="text-xl font-bold text-green-600">{production} kg</p>
       </div>
     </div>
