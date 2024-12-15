@@ -8,26 +8,39 @@ import { db } from "~/db";
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { userId } = params;
 
-  const result = await db.$queryRaw<{ totalArea: number; treeCount: number }[]>`
-    SELECT 
-      COALESCE(
-        (SELECT SUM(o.area)
-         FROM Orchard o
-         WHERE o.userId = ${userId}), 
-        0
-      ) AS totalArea,
-      COALESCE(
-        (SELECT COUNT(t.id)
-         FROM Tree t
-         INNER JOIN Orchard o ON t.orchardId = o.id AND t.orchardUserId = o.userId
-         WHERE o.userId = ${userId}),
-        0
-      ) AS treeCount
+  const result = await db.$queryRaw<
+    { totalArea: number; treeCount: number; totalQuantity: number }[]
+  >`
+  SELECT 
+    COALESCE(
+      (SELECT SUM(o.area)
+       FROM Orchard o
+       WHERE o.userId = ${userId}), 
+      0
+    ) AS totalArea,
+    COALESCE(
+      (SELECT COUNT(t.id)
+       FROM Tree t
+       INNER JOIN Orchard o ON t.orchardId = o.id AND t.orchardUserId = o.userId
+       WHERE o.userId = ${userId}),
+      0
+    ) AS treeCount,
+    COALESCE(
+      (SELECT SUM(h.quantity)
+       FROM Harvest h
+       INNER JOIN Orchard o ON h.orchardId = o.id AND h.orchardUserId = o.userId
+       WHERE o.userId = ${userId}),
+      0
+    ) AS totalQuantity
   `;
 
   console.log(result);
-  const { totalArea, treeCount } = result[0];
-  return { userId, totalArea, treeCount };
+
+  // Destructure all three properties from the first result
+  const { totalArea, treeCount, totalQuantity } = result[0];
+
+  // Return all three values
+  return { userId, totalArea, treeCount, totalQuantity };
 }
 
 const columnDefs = [
@@ -73,7 +86,8 @@ interface ICar {
   price: number;
 }
 export default function Index() {
-  const { userId, totalArea, treeCount } = useLoaderData<typeof loader>();
+  const { userId, totalArea, treeCount, totalQuantity } =
+    useLoaderData<typeof loader>();
 
   const [rowData, setRowData] = useState([
     { make: "Tesla", model: "Model Y", price: 64950, electric: true },
@@ -91,7 +105,11 @@ export default function Index() {
 
   return (
     <>
-      <FarmStatus area={totalArea} trees={Number(treeCount)} production={0} />
+      <FarmStatus
+        area={totalArea}
+        trees={Number(treeCount)}
+        production={Number(totalQuantity.toFixed(2))}
+      />
       <div className="flex flex-col flex-1 p-5 bg-white w-full">
         <AgGrid columnDefs={colDefs} rowData={rowData} />
       </div>
