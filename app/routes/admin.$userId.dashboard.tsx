@@ -1,11 +1,11 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { useState } from "react";
+import { useState, lazy } from "react";
 import { AgGrid } from "~/components/AgGrid";
 import FarmStatus from "~/components/FarmStatus";
-import PieChart from "~/components/PieChart";
 import { db } from "~/db";
-const { Chart } = await import("chart.js");
+import { ClientOnly } from "remix-utils/client-only";
+import PieChart from "~/components/PieChart";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { userId } = params;
@@ -112,9 +112,11 @@ export default function Index() {
         trees={Number(treeCount)}
         production={Number(totalQuantity.toFixed(2))}
       />
-      {/*  <div>
-        <PieChart />
-      </div> */}
+      <div>
+        <ClientOnly fallback={<div>Loading...</div>}>
+          {() => <PieChart />}
+        </ClientOnly>
+      </div>
       <div className="flex flex-col flex-1 p-5 bg-white w-full">
         <AgGrid columnDefs={colDefs} rowData={rowData} />
       </div>

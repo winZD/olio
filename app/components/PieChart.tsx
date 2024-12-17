@@ -1,6 +1,6 @@
+import { ArcElement, Chart, Legend, Tooltip } from "chart.js";
 import { Pie } from "react-chartjs-2";
 
-const { Chart, ArcElement, Tooltip, Legend } = await import("chart.js");
 Chart.register(ArcElement, Tooltip, Legend);
 
 const PieChart = () => {
