@@ -10,6 +10,8 @@ import PieChart from "~/components/PieChart";
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { userId } = params;
 
+  const currentYear = new Date().getFullYear();
+
   const result = await db.$queryRaw<
     { totalArea: number; treeCount: number; totalQuantity: number }[]
   >`
@@ -36,13 +38,58 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     ) AS totalQuantity
   `;
 
-  console.log(result);
+  // Step 1: Group data by location and sum quantities
+  const groupedData = await db.harvestTable.groupBy({
+    by: ["orchardId"],
+    where: {
+      orchard: {
+        userId,
+      },
+      date: {
+        lte: new Date(`${currentYear}-12-31`), // Harvests up to the current year
+      },
+    },
+    _sum: {
+      quantity: true,
+    },
+    orderBy: {
+      _sum: {
+        quantity: "desc",
+      },
+    },
+  });
+
+  // Step 2: Fetch orchard locations for the grouped orchardIds
+  const orchardLocations = await db.orchardTable.findMany({
+    where: {
+      id: {
+        in: groupedData.map((data) => data.orchardId),
+      },
+    },
+    select: {
+      id: true,
+      location: true,
+    },
+  });
 
   // Destructure all three properties from the first result
   const { totalArea, treeCount, totalQuantity } = result[0];
 
+  const percentages = groupedData.map((item) => {
+    const orchardLocation = orchardLocations.find(
+      (orchard) => orchard.id === item.orchardId
+    );
+    return {
+      id: orchardLocation?.id,
+      location: orchardLocation?.location || "Unknown", // Default to "Unknown" if no location is found
+      percentage: (((item._sum.quantity || 0) / totalQuantity) * 100).toFixed(
+        2
+      ),
+    };
+  });
+
   // Return all three values
-  return { userId, totalArea, treeCount, totalQuantity };
+  return { userId, totalArea, treeCount, totalQuantity, percentages };
 }
 
 const columnDefs = [
@@ -88,7 +135,7 @@ interface ICar {
   price: number;
 }
 export default function Index() {
-  const { userId, totalArea, treeCount, totalQuantity } =
+  const { userId, totalArea, treeCount, totalQuantity, percentages } =
     useLoaderData<typeof loader>();
 
   const [rowData, setRowData] = useState([
@@ -114,7 +161,7 @@ export default function Index() {
       />
       <div>
         <ClientOnly fallback={<div>Loading...</div>}>
-          {() => <PieChart />}
+          {() => <PieChart data={percentages} />}
         </ClientOnly>
       </div>
       <div className="flex flex-col flex-1 p-5 bg-white w-full">
