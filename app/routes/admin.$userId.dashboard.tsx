@@ -3,6 +3,7 @@ import { useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import { AgGrid } from "~/components/AgGrid";
 import FarmStatus from "~/components/FarmStatus";
+import PieChart from "~/components/PieChart";
 import { db } from "~/db";
 const { Chart } = await import("chart.js");
 
@@ -111,6 +112,9 @@ export default function Index() {
         trees={Number(treeCount)}
         production={Number(totalQuantity.toFixed(2))}
       />
+      {/*  <div>
+        <PieChart />
+      </div> */}
       <div className="flex flex-col flex-1 p-5 bg-white w-full">
         <AgGrid columnDefs={colDefs} rowData={rowData} />
       </div>
