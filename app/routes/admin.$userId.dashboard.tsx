@@ -46,7 +46,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         userId,
       },
       date: {
-        lte: new Date(`${currentYear}-12-31`), // Harvests up to the current year
+        /* lte: new Date(`${currentYear}-12-31`), // Harvests up to the current year */
+        gte: new Date(`${currentYear}-01-01`), // Harvests from the start of the current year
+        lte: new Date(`${currentYear}-12-31`), // Harvests up to the end of the current year
       },
     },
     _sum: {
