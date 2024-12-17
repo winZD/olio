@@ -9,7 +9,10 @@ const PieChart = () => {
     datasets: [
       {
         data: [12, 29],
-        backgroundColor: ["rgba(255, 99, 132, 0.2)", "rgba(54, 162, 235, 0.2)"],
+        backgroundColor: [
+          "#ff0033", // Bright fire engine red
+          "#0066cc", // Deep navy blue
+        ],
         borderWidth: 1,
       },
     ],
