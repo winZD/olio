@@ -161,11 +161,17 @@ export default function Index() {
         trees={Number(treeCount)}
         production={Number(totalQuantity.toFixed(2))}
       />
-      <div>
-        <ClientOnly fallback={<div>Loading...</div>}>
-          {() => <PieChart data={percentages} />}
-        </ClientOnly>
-      </div>
+
+      <ClientOnly fallback={<div>Loading...</div>}>
+        {() => (
+          <div className="flex w-full">
+            <div>
+              <PieChart data={percentages} />
+            </div>
+          </div>
+        )}
+      </ClientOnly>
+
       <div className="flex flex-col flex-1 p-5 bg-white w-full">
         <AgGrid columnDefs={colDefs} rowData={rowData} />
       </div>
