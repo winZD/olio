@@ -6,6 +6,7 @@ import FarmStatus from "~/components/FarmStatus";
 import { db } from "~/db";
 import { ClientOnly } from "remix-utils/client-only";
 import PieChart from "~/components/PieChart";
+import BarChart from "~/components/BarChart";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { userId } = params;
@@ -90,8 +91,22 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     };
   });
 
-  // Return all three values
-  return { userId, totalArea, treeCount, totalQuantity, percentages };
+  const yearlyProduction = await db.harvestTable.groupBy({
+    by: ["date"],
+    where: { orchard: { userId } },
+    _sum: { quantity: true },
+    orderBy: { date: "asc" },
+  });
+
+  console.log(yearlyProduction);
+  return {
+    userId,
+    totalArea,
+    treeCount,
+    totalQuantity,
+    percentages,
+    yearlyProduction,
+  };
 }
 
 const columnDefs = [
@@ -137,8 +152,14 @@ interface ICar {
   price: number;
 }
 export default function Index() {
-  const { userId, totalArea, treeCount, totalQuantity, percentages } =
-    useLoaderData<typeof loader>();
+  const {
+    userId,
+    totalArea,
+    treeCount,
+    totalQuantity,
+    percentages,
+    yearlyProduction,
+  } = useLoaderData<typeof loader>();
 
   const [rowData, setRowData] = useState([
     { make: "Tesla", model: "Model Y", price: 64950, electric: true },
@@ -168,11 +189,14 @@ export default function Index() {
             <div>
               <PieChart data={percentages} />
             </div>
+            <div>
+              <BarChart data={yearlyProduction} />{" "}
+            </div>
           </div>
         )}
       </ClientOnly>
 
-      <div className="flex flex-col flex-1 p-5 bg-white w-full">
+      <div className="flex flex-col h-96 p-5 bg-white w-full">
         <AgGrid columnDefs={colDefs} rowData={rowData} />
       </div>
     </>
