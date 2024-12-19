@@ -37,7 +37,7 @@ export default function Index() {
           Odjavi se
         </button>
       </header>
-      <div className="flex flex-grow bg-red-800">
+      <div className="flex flex-grow">
         <aside className="flex flex-col gap-3 p-8 bg-white ">
           <NavLink className={"uppercase"} to={`${params?.userId}/dashboard`}>
             dashboard
@@ -46,7 +46,7 @@ export default function Index() {
             orchards
           </NavLink>
         </aside>
-        <main className="flex flex-col justify-center items-center h-full w-full">
+        <main className="flex flex-col justify-center items-center w-full">
           <Outlet />
         </main>
       </div>

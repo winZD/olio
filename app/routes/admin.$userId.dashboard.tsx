@@ -162,7 +162,7 @@ export default function Index() {
         production={Number(totalQuantity.toFixed(2))}
       />
 
-      {/*  <ClientOnly fallback={<div>Loading...</div>}>
+      <ClientOnly fallback={<div>Loading...</div>}>
         {() => (
           <div className="flex w-full">
             <div>
@@ -170,7 +170,7 @@ export default function Index() {
             </div>
           </div>
         )}
-      </ClientOnly> */}
+      </ClientOnly>
 
       <div className="flex flex-col flex-1 p-5 bg-white w-full">
         <AgGrid columnDefs={colDefs} rowData={rowData} />
