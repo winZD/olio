@@ -11,7 +11,7 @@ export const meta: MetaFunction = () => {
 export default function Index() {
   const navigate = useNavigate();
   return (
-    <div className="bg-lime-50 h-full">
+    <div className="bg-lime-50 min-h-screen">
       <header className="flex items-center justify-between gap-8 border-b p-2 ">
         <h1 className="text-2xl">OLIO</h1>
         <button

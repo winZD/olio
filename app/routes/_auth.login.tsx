@@ -70,7 +70,7 @@ export default function Index() {
   });
 
   return (
-    <div className="flex h-full w-full items-center justify-center">
+    <div className="flex h-screen w-full items-center justify-center">
       <Form
         method="POST"
         className="flex flex-col gap-4 rounded border p-6 shadow bg-lime-700 text-white justify-center items-center"
