@@ -42,7 +42,7 @@ async function main() {
       data: {
         userId: user.id,
         name: `Orchard of ${user.name}`,
-        location: `Location-${Math.floor(Math.random() * 1000)}`,
+        location: `Location-${Math.floor(Math.random() * 100)}`,
         area: Math.floor(5 + Math.random() * 20), // Random area between 5 and 25 hectares
         soilType: ["Sandy", "Clay", "Loam"][Math.floor(Math.random() * 3)],
         irrigation: Math.random() > 0.5, // Random irrigation status
@@ -109,7 +109,7 @@ async function main() {
     for (const tree of trees) {
       const harvestPromise = prisma.harvestTable.create({
         data: {
-          date: new Date(),
+          year: new Date().getFullYear(),
           quantity: Math.random() * 50, // Random quantity between 0 and 50 kg
           quality: ["Extra Virgin", "Virgin", "Standard"][
             Math.floor(Math.random() * 3)

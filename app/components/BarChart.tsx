@@ -13,11 +13,11 @@ import {
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 interface BarChartProps {
-  data: { date: Date; _sum: { quantity: number | null } }[];
+  data: { year: number; _sum: { quantity: number | null } }[];
 }
 const BarChart: React.FC<BarChartProps> = ({ data }) => {
   const chartData = {
-    labels: data.map((item) => item.date.getFullYear()), // Extract years as labels
+    labels: data.map((item) => item.year), // Extract years as labels
     datasets: [
       {
         label: "Quantityn(tons)",

@@ -70,7 +70,7 @@ model TreeTable {
 
 model HarvestTable {
   id            String         @id @default(uuid()) // UUID primary key
-  date          DateTime // Harvest date
+  year          Int // Store year as a Integer
   quantity      Float // Quantity harvested in kilograms
   quality       String // e.g., "Extra Virgin", "Virgin"
   treeId        String // UUID reference

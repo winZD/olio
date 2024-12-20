@@ -6,7 +6,7 @@ async function main() {
   // Fetch orchards for the user with the specific ID
   const orchards = await prisma.orchardTable.findMany({
     where: {
-      userId: "219fa505-8b20-4566-8c28-dc4cc9dedef8", // Specify the user ID
+      userId: "2aff5064-a243-4d74-b01f-68975c0832b7", // Specify the user ID
     },
   });
 

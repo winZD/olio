@@ -46,10 +46,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       orchard: {
         userId,
       },
-      date: {
+      year: {
         /* lte: new Date(`${currentYear}-12-31`), // Harvests up to the current year */
-        gte: new Date(`${currentYear}-01-01`), // Harvests from the start of the current year
-        lte: new Date(`${currentYear}-12-31`), // Harvests up to the end of the current year
+        gte: currentYear, // Harvests from the start of the current year
+        lte: currentYear, // Harvests up to the end of the current year
       },
     },
     _sum: {
@@ -92,10 +92,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 
   const yearlyProduction = await db.harvestTable.groupBy({
-    by: ["date"],
+    by: ["year"],
     where: { orchard: { userId } },
     _sum: { quantity: true },
-    orderBy: { date: "asc" },
+    orderBy: { year: "asc" },
   });
 
   console.log(yearlyProduction);
