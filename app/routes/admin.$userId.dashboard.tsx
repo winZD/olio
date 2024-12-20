@@ -185,7 +185,7 @@ export default function Index() {
 
       <ClientOnly fallback={<div>Loading...</div>}>
         {() => (
-          <div className="flex w-full">
+          <div className="flex w-full justify-evenly items-center p-3">
             <div>
               <PieChart data={percentages} />
             </div>

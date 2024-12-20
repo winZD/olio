@@ -20,18 +20,18 @@ const BarChart: React.FC<BarChartProps> = ({ data }) => {
     labels: data.map((item) => item.year), // Extract years as labels
     datasets: [
       {
-        label: "Quantityn(tons)",
+        label: "Quantity(kg)",
         data: data.map((item) => item._sum.quantity), // Extract quantities as data
         backgroundColor: [
-          "rgba(255, 99, 132, 0.2)",
-          "rgba(255, 159, 64, 0.2)",
-          "rgba(255, 205, 86, 0.2)",
-          "rgba(75, 192, 192, 0.2)",
-          "rgba(54, 162, 235, 0.2)",
-          "rgba(153, 102, 255, 0.2)",
-          "rgba(201, 203, 207, 0.2)",
+          "rgba(255, 99, 132, 1)", // Solid red
+          "rgba(255, 159, 64, 1)", // Solid orange
+          "rgba(255, 205, 86, 1)", // Solid yellow
+          "rgba(75, 192, 192, 1)", // Solid teal
+          "rgba(54, 162, 235, 1)", // Solid blue
+          "rgba(153, 102, 255, 1)", // Solid purple
+          "rgba(201, 203, 207, 1)", // Solid grey
         ],
-        borderColor: "#4CAF50",
+        /*  borderColor: "#4CAF50", */
         borderWidth: 1,
       },
     ],
@@ -58,7 +58,7 @@ const BarChart: React.FC<BarChartProps> = ({ data }) => {
       y: {
         title: {
           display: true,
-          text: "Quantity",
+          /*  text: "Quantity", */
         },
         beginAtZero: true,
       },
