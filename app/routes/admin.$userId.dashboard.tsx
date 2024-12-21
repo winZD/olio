@@ -1,12 +1,13 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { useState, lazy } from "react";
+import { useState, lazy, useMemo } from "react";
 import { AgGrid } from "~/components/AgGrid";
 import FarmStatus from "~/components/FarmStatus";
 import { db } from "~/db";
 import { ClientOnly } from "remix-utils/client-only";
 import PieChart from "~/components/PieChart";
 import BarChart from "~/components/BarChart";
+import { ColDef } from "ag-grid-community";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { userId } = params;
@@ -99,6 +100,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     orderBy: { year: "asc" },
   });
 
+  const orchardData = await db.orchardTable.findMany({
+    where: { userId },
+    include: {
+      trees: true,
+    },
+  });
+
   return {
     userId,
     totalArea,
@@ -106,6 +114,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     totalQuantity,
     percentages,
     yearlyProduction,
+    orchardData,
   };
 }
 
@@ -159,6 +168,7 @@ export default function Index() {
     totalQuantity,
     percentages,
     yearlyProduction,
+    orchardData,
   } = useLoaderData<typeof loader>();
 
   const [rowData, setRowData] = useState([
@@ -168,12 +178,37 @@ export default function Index() {
   ]);
 
   // Column Definitions: Defines the columns to be displayed.
-  const [colDefs, setColDefs] = useState<{ field: string }[]>([
+  /*   const [colDefs, setColDefs] = useState<{ field: string }[]>([
     { field: "make" },
     { field: "model" },
     { field: "price" },
     { field: "electric" },
-  ]);
+  ]); */
+  const columnDefs = useMemo<ColDef<(typeof orchardData)[0]>[]>(
+    () => [
+      {
+        field: "name",
+        headerName: "Name",
+      },
+      {
+        field: "area",
+        headerName: "area",
+      },
+      {
+        field: "location",
+        headerName: "location",
+      },
+      {
+        field: "soilType",
+        headerName: "soil",
+      },
+      {
+        field: "irrigation",
+        headerName: "irrigation",
+      },
+    ],
+    []
+  );
 
   return (
     <>
@@ -197,7 +232,7 @@ export default function Index() {
       </ClientOnly>
 
       <div className="flex flex-col h-96 p-5 bg-white w-full">
-        <AgGrid columnDefs={colDefs} rowData={rowData} />
+        <AgGrid columnDefs={columnDefs} rowData={orchardData} />
       </div>
     </>
   );
