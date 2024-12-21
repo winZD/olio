@@ -48,8 +48,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       },
       year: {
         /* lte: new Date(`${currentYear}-12-31`), // Harvests up to the current year */
-        gte: currentYear, // Harvests from the start of the current year
-        lte: currentYear, // Harvests up to the end of the current year
+        /* gte: currentYear, // Harvests from the start of the current year
+        lte: currentYear, // Harvests up to the end of the current year */
+        equals: currentYear,
       },
     },
     _sum: {
@@ -98,7 +99,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     orderBy: { year: "asc" },
   });
 
-  console.log(yearlyProduction);
   return {
     userId,
     totalArea,
@@ -166,7 +166,7 @@ export default function Index() {
     { make: "Ford", model: "F-Series", price: 33850, electric: false },
     { make: "Toyota", model: "Corolla", price: 29600, electric: false },
   ]);
-  console.log(treeCount);
+
   // Column Definitions: Defines the columns to be displayed.
   const [colDefs, setColDefs] = useState<{ field: string }[]>([
     { field: "make" },
