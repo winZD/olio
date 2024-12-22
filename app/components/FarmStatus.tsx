@@ -8,7 +8,7 @@ const FarmStatus = ({
   production: number | null;
 }) => {
   return (
-    <div className="grid md:grid-cols-2 xl:grid-cols-3 w-full text-center gap-4 p-6 bg-gray-100 rounded-lg shadow-md">
+    <div className="grid md:grid-cols-2 xl:grid-cols-3 w-full text-center gap-4 p-6 bg-slate-50 rounded-lg">
       <div className="bg-white p-4 rounded-md shadow-sm border border-gray-200">
         <h3 className="text-lg font-semibold text-gray-700">Farm Area</h3>
         <p className="text-xl font-bold text-green-600">{area}</p>
