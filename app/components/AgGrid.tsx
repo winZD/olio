@@ -9,8 +9,8 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 export const AgGrid: React.FC<AgGridReactProps> = ({
   rowData,
   columnDefs,
+  domLayout = "autoHeight",
   defaultColDef = { flex: 1 },
-
   suppressRowHoverHighlight = true,
   suppressCellFocus = true,
   overlayNoRowsTemplate = "Nema podataka",
@@ -19,6 +19,7 @@ export const AgGrid: React.FC<AgGridReactProps> = ({
   return (
     <div className={`${props.className || ""} ag-theme-quartz flex-1`}>
       <AgGridReact
+        domLayout={domLayout}
         rowData={rowData}
         columnDefs={columnDefs}
         defaultColDef={defaultColDef}

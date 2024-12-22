@@ -133,7 +133,7 @@ export default function Index() {
         )}
       </ClientOnly>
 
-      <div className="flex flex-col h-96 p-5 w-full">
+      <div className="flex flex-col p-5 w-full">
         <AgGrid columnDefs={columnDefs} rowData={orchardData} />
       </div>
     </>
