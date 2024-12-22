@@ -10,97 +10,63 @@ import BarChart from "~/components/BarChart";
 import { ColDef } from "ag-grid-community";
 import { Prisma } from "@prisma/client";
 
+// Loader function to fetch required data
 export async function loader({ params }: LoaderFunctionArgs) {
   const { userId } = params;
-
   const currentYear = new Date().getFullYear();
 
-  const result = await db.$queryRaw<
-    {
-      totalArea: number;
-      treeCount: number;
-      totalQuantity: number;
-    }[]
+  // Fetch overall statistics: total area, tree count, and total harvest quantity
+  const [overallStats] = await db.$queryRaw<
+    { totalArea: number; treeCount: number; totalQuantity: number }[]
   >(
     Prisma.sql`
-    SELECT 
-      COALESCE(
-        (SELECT SUM(o.area)
-         FROM Orchard o
-         WHERE o.userId = ${userId}), 
-        0
-      ) AS totalArea,
-      COALESCE(
-        (SELECT COUNT(t.id)
-         FROM Tree t
-         INNER JOIN Orchard o ON t.orchardId = o.id AND t.orchardUserId = o.userId
-         WHERE o.userId = ${userId}),
-        0
-      ) AS treeCount,
-      COALESCE(
-        (SELECT SUM(h.quantity)
-         FROM Harvest h
-         INNER JOIN Orchard o ON h.orchardId = o.id AND h.orchardUserId = o.userId
-         WHERE o.userId = ${userId}),
-        0
-      ) AS totalQuantity
-  `
+      SELECT 
+        COALESCE((SELECT SUM(o.area) FROM Orchard o WHERE o.userId = ${userId}), 0) AS totalArea,
+        COALESCE((SELECT COUNT(t.id) 
+          FROM Tree t
+          INNER JOIN Orchard o ON t.orchardId = o.id AND t.orchardUserId = o.userId 
+          WHERE o.userId = ${userId}), 0) AS treeCount,
+        COALESCE((SELECT SUM(h.quantity) 
+          FROM Harvest h
+          INNER JOIN Orchard o ON h.orchardId = o.id AND h.orchardUserId = o.userId 
+          WHERE o.userId = ${userId}), 0) AS totalQuantity
+    `
   );
 
-  // Step 1: Group data by location and sum quantities
-  const groupedData = await db.harvestTable.groupBy({
+  // Group harvest data by orchard
+  const groupedHarvestData = await db.harvestTable.groupBy({
     by: ["orchardId"],
     where: {
-      orchard: {
-        userId,
-      },
-      year: {
-        /* lte: new Date(`${currentYear}-12-31`), // Harvests up to the current year */
-        /* gte: currentYear, // Harvests from the start of the current year
-        lte: currentYear, // Harvests up to the end of the current year */
-        equals: currentYear,
-      },
+      orchard: { userId },
+      year: currentYear,
     },
-    _sum: {
-      quantity: true,
-    },
-    orderBy: {
-      _sum: {
-        quantity: "desc",
-      },
-    },
+    _sum: { quantity: true },
+    orderBy: { _sum: { quantity: "desc" } },
   });
 
-  // Step 2: Fetch orchard locations for the grouped orchardIds
+  // Fetch orchard locations for grouped harvest data
   const orchardLocations = await db.orchardTable.findMany({
     where: {
       id: {
-        in: groupedData.map((data) => data.orchardId),
+        in: groupedHarvestData.map((data) => data.orchardId),
       },
     },
-    select: {
-      id: true,
-      location: true,
-    },
+    select: { id: true, location: true },
   });
 
-  // Destructure all three properties from the first result
-  const { totalArea, treeCount, totalQuantity } = result[0];
-  console.log(result);
-
-  const percentages = groupedData.map((item) => {
-    const orchardLocation = orchardLocations.find(
-      (orchard) => orchard.id === item.orchardId
-    );
+  const percentages = groupedHarvestData.map((item) => {
+    const orchard = orchardLocations.find((o) => o.id === item.orchardId);
     return {
-      id: orchardLocation?.id,
-      location: orchardLocation?.location || "Unknown", // Default to "Unknown" if no location is found
-      percentage: (((item._sum.quantity || 0) / totalQuantity) * 100).toFixed(
-        2
-      ),
+      id: orchard?.id,
+      location: orchard?.location || "Unknown",
+      percentage: (
+        ((item._sum.quantity || 0) / overallStats.totalQuantity) *
+        100
+      ).toFixed(2),
     };
   });
 
+  // Yearly harvest production data
   const yearlyProduction = await db.harvestTable.groupBy({
     by: ["year"],
     where: { orchard: { userId } },
@@ -108,18 +74,15 @@ export async function loader({ params }: LoaderFunctionArgs) {
     orderBy: { year: "asc" },
   });
 
+  // Orchard data with tree details
   const orchardData = await db.orchardTable.findMany({
     where: { userId },
-    include: {
-      trees: true,
-    },
+    include: { trees: true },
   });
 
   return {
     userId,
-    totalArea,
-    treeCount,
-    totalQuantity,
+    ...overallStats,
     percentages,
     yearlyProduction,
     orchardData,
@@ -136,28 +99,14 @@ export default function Index() {
     orchardData,
   } = useLoaderData<typeof loader>();
 
+  // Define column definitions for AgGrid
   const columnDefs = useMemo<ColDef<(typeof orchardData)[0]>[]>(
     () => [
-      {
-        field: "name",
-        headerName: "Name",
-      },
-      {
-        field: "area",
-        headerName: "area",
-      },
-      {
-        field: "location",
-        headerName: "location",
-      },
-      {
-        field: "soilType",
-        headerName: "soil",
-      },
-      {
-        field: "irrigation",
-        headerName: "irrigation",
-      },
+      { field: "name", headerName: "Name" },
+      { field: "area", headerName: "Area" },
+      { field: "location", headerName: "Location" },
+      { field: "soilType", headerName: "Soil Type" },
+      { field: "irrigation", headerName: "Irrigation" },
     ],
     []
   );
