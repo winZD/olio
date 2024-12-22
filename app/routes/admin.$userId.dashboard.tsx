@@ -122,7 +122,7 @@ export default function Index() {
 
       <ClientOnly fallback={<div>Loading...</div>}>
         {() => (
-          <div className="flex w-full justify-evenly items-center p-3">
+          <div className="flex w-full justify-evenly items-center p-3 ">
             <div>
               <PieChart data={percentages} />
             </div>
@@ -133,7 +133,7 @@ export default function Index() {
         )}
       </ClientOnly>
 
-      <div className="flex flex-col h-96 p-5 bg-white w-full">
+      <div className="flex flex-col h-96 p-5 w-full">
         <AgGrid columnDefs={columnDefs} rowData={orchardData} />
       </div>
     </>

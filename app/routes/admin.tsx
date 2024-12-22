@@ -30,7 +30,7 @@ export default function Index() {
 
   console.log(params);
   return (
-    <div className="bg-lime-50 flex flex-col text-black min-h-screen">
+    <div className="bg-slate-50 flex flex-col text-black min-h-screen">
       <header className="flex items-center justify-between gap-8 border-b p-2 bg-lime-100">
         <h1 className="text-2xl">OLIO</h1>
         <button className="rounded-md bg-lime-700 text-white hover:bg-lime-800 p-2">
@@ -38,7 +38,7 @@ export default function Index() {
         </button>
       </header>
       <div className="flex flex-grow">
-        <aside className="flex flex-col gap-3 p-8 bg-white ">
+        <aside className="flex flex-col gap-3 p-8 bg-lime-100">
           <NavLink className={"uppercase"} to={`${params?.userId}/dashboard`}>
             dashboard
           </NavLink>
