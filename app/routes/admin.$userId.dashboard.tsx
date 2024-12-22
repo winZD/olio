@@ -47,6 +47,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
   // Fetch orchard locations for grouped harvest data
   const orchardLocations = await db.orchardTable.findMany({
     where: {
+      userId,
       id: {
         in: groupedHarvestData.map((data) => data.orchardId),
       },
