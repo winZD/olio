@@ -17,7 +17,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const existedUser = await db.userTable.findUniqueOrThrow({
       where: { email: user.email },
     });
-    console.log("User:", user);
+    /*  console.log("User:", user); */
     if (existedUser) {
       return { existedUser };
     }
