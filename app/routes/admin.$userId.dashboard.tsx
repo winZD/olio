@@ -1,6 +1,6 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { useState, lazy, useMemo } from "react";
+import { useMemo } from "react";
 import { AgGrid } from "~/components/AgGrid";
 import FarmStatus from "~/components/FarmStatus";
 import { db } from "~/db";
@@ -8,37 +8,44 @@ import { ClientOnly } from "remix-utils/client-only";
 import PieChart from "~/components/PieChart";
 import BarChart from "~/components/BarChart";
 import { ColDef } from "ag-grid-community";
+import { Prisma } from "@prisma/client";
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { userId } = params;
 
   const currentYear = new Date().getFullYear();
 
   const result = await db.$queryRaw<
-    { totalArea: number; treeCount: number; totalQuantity: number }[]
-  >`
-  SELECT 
-    COALESCE(
-      (SELECT SUM(o.area)
-       FROM Orchard o
-       WHERE o.userId = ${userId}), 
-      0
-    ) AS totalArea,
-    COALESCE(
-      (SELECT COUNT(t.id)
-       FROM Tree t
-       INNER JOIN Orchard o ON t.orchardId = o.id AND t.orchardUserId = o.userId
-       WHERE o.userId = ${userId}),
-      0
-    ) AS treeCount,
-    COALESCE(
-      (SELECT SUM(h.quantity)
-       FROM Harvest h
-       INNER JOIN Orchard o ON h.orchardId = o.id AND h.orchardUserId = o.userId
-       WHERE o.userId = ${userId}),
-      0
-    ) AS totalQuantity
-  `;
+    {
+      totalArea: number;
+      treeCount: number;
+      totalQuantity: number;
+    }[]
+  >(
+    Prisma.sql`
+    SELECT 
+      COALESCE(
+        (SELECT SUM(o.area)
+         FROM Orchard o
+         WHERE o.userId = ${userId}), 
+        0
+      ) AS totalArea,
+      COALESCE(
+        (SELECT COUNT(t.id)
+         FROM Tree t
+         INNER JOIN Orchard o ON t.orchardId = o.id AND t.orchardUserId = o.userId
+         WHERE o.userId = ${userId}),
+        0
+      ) AS treeCount,
+      COALESCE(
+        (SELECT SUM(h.quantity)
+         FROM Harvest h
+         INNER JOIN Orchard o ON h.orchardId = o.id AND h.orchardUserId = o.userId
+         WHERE o.userId = ${userId}),
+        0
+      ) AS totalQuantity
+  `
+  );
 
   // Step 1: Group data by location and sum quantities
   const groupedData = await db.harvestTable.groupBy({
@@ -79,6 +86,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   // Destructure all three properties from the first result
   const { totalArea, treeCount, totalQuantity } = result[0];
+  console.log(result);
 
   const percentages = groupedData.map((item) => {
     const orchardLocation = orchardLocations.find(
@@ -118,51 +126,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   };
 }
 
-const columnDefs = [
-  {
-    headerName: "Orchard Name",
-    field: "name",
-    sortable: true,
-    filter: true,
-    width: 200,
-  },
-  {
-    headerName: "Location",
-    field: "location",
-    sortable: true,
-    filter: true,
-    width: 150,
-  },
-  {
-    headerName: "Area (hectares)",
-    field: "area",
-    sortable: true,
-    filter: true,
-    width: 150,
-  },
-  {
-    headerName: "Soil Type",
-    field: "soilType",
-    sortable: true,
-    filter: true,
-    width: 120,
-  },
-  {
-    headerName: "Irrigation",
-    field: "irrigation",
-    sortable: true,
-    filter: true,
-    width: 120,
-  },
-];
-interface ICar {
-  make: string;
-  model: string;
-  price: number;
-}
 export default function Index() {
   const {
-    userId,
     totalArea,
     treeCount,
     totalQuantity,
@@ -171,19 +136,6 @@ export default function Index() {
     orchardData,
   } = useLoaderData<typeof loader>();
 
-  const [rowData, setRowData] = useState([
-    { make: "Tesla", model: "Model Y", price: 64950, electric: true },
-    { make: "Ford", model: "F-Series", price: 33850, electric: false },
-    { make: "Toyota", model: "Corolla", price: 29600, electric: false },
-  ]);
-
-  // Column Definitions: Defines the columns to be displayed.
-  /*   const [colDefs, setColDefs] = useState<{ field: string }[]>([
-    { field: "make" },
-    { field: "model" },
-    { field: "price" },
-    { field: "electric" },
-  ]); */
   const columnDefs = useMemo<ColDef<(typeof orchardData)[0]>[]>(
     () => [
       {
