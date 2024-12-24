@@ -7,6 +7,7 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 // AgGrid Wrapper Component
 export const AgGrid: React.FC<AgGridReactProps> = ({
   rowData,
+  enableBrowserTooltips = true,
   columnDefs,
   domLayout = "autoHeight",
   defaultColDef = { flex: 1 },
@@ -25,6 +26,7 @@ export const AgGrid: React.FC<AgGridReactProps> = ({
         suppressRowHoverHighlight={suppressRowHoverHighlight}
         suppressCellFocus={suppressCellFocus}
         overlayNoRowsTemplate={overlayNoRowsTemplate}
+        enableBrowserTooltips={enableBrowserTooltips}
         {...props} // Spread other props to allow further customization if needed
       />{" "}
     </div>

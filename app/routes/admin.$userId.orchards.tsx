@@ -1,61 +1,71 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { AgGridReact } from "ag-grid-react";
+import { ColDef } from "ag-grid-community";
+import { useMemo } from "react";
 import { db } from "~/db";
+import { useLoaderData } from "@remix-run/react";
+import { AgGrid } from "~/components/AgGrid";
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { userId } = params;
 
-  // Use an aggregation query to calculate the total area
-  const harvestArea = await db.orchardTable.aggregate({
+  // Orchard data with tree details
+  /*   const orchardData = await db.orchardTable.findMany({
     where: { userId },
-    _sum: { area: true }, // Summing the 'area' field
+    include: { trees: true },
+  }); */
+  const orchards = await db.orchardTable.findMany({
+    where: { userId },
+    include: {
+      trees: true,
+      varieties: {
+        select: {
+          name: true,
+        },
+      },
+    },
   });
-  return { userId, harvestArea };
+
+  const orchardData = orchards.map((orchard) => ({
+    id: orchard.id,
+    name: orchard.name,
+    area: orchard.area,
+    location: orchard.location,
+    soilType: orchard.soilType,
+    irrigation: orchard.irrigation,
+    trees: orchard.trees.length,
+    varieties: orchard.varieties.length,
+    varietyNames: orchard.varieties.map((v) => v.name).join(", "),
+  }));
+  return { orchardData };
 }
-
-const columnDefs = [
-  {
-    headerName: "Orchard Name",
-    field: "name",
-    sortable: true,
-    filter: true,
-    width: 200,
-  },
-  {
-    headerName: "Location",
-    field: "location",
-    sortable: true,
-    filter: true,
-    width: 150,
-  },
-  {
-    headerName: "Area (hectares)",
-    field: "area",
-    sortable: true,
-    filter: true,
-    width: 150,
-  },
-  {
-    headerName: "Soil Type",
-    field: "soilType",
-    sortable: true,
-    filter: true,
-    width: 120,
-  },
-  {
-    headerName: "Irrigation",
-    field: "irrigation",
-    sortable: true,
-    filter: true,
-    width: 120,
-  },
-];
-
 export default function Index() {
+  // Define column definitions for AgGrid
+  const { orchardData } = useLoaderData<typeof loader>();
+  const colDefs = useMemo<ColDef<(typeof orchardData)[0]>[]>(
+    () => [
+      { field: "name", headerName: "Name" },
+      { field: "area", headerName: "Area" },
+      { field: "location", headerName: "Location" },
+      { field: "soilType", headerName: "Soil Type" },
+      { field: "trees", headerName: "Trees" },
+      { field: "varieties", headerName: "Varieties" },
+      {
+        field: "varietyNames",
+        headerName: "Variety names",
+        tooltipField: "varietyNames",
+      },
+      { field: "irrigation", headerName: "Irrigation" },
+    ],
+    []
+  );
   return (
-    <div>
-      {/*  {" "}
-      <AgGridReact rowData={rowData} columnDefs={colDefs} /> */}
+    <div className="flex flex-col p-5 w-full">
+      <div className="flex w-full justify-end">
+        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Add
+        </button>
+      </div>
+      <AgGrid columnDefs={colDefs} rowData={orchardData} />
     </div>
   );
 }

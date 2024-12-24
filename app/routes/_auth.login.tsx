@@ -44,7 +44,7 @@ export async function action({ request }: ActionFunctionArgs) {
     },
   });
 
-  console.log(user);
+  /*   console.log(user); */
   if (!user) {
     return null;
   }
