@@ -55,6 +55,20 @@ export default function Index() {
         tooltipField: "varietyNames",
       },
       { field: "irrigation", headerName: "Irrigation" },
+      {
+        headerName: "Actions",
+        cellRenderer: (params: { data: (typeof orchardData)[0] }) => (
+          <div className="flex h-full flex-row items-center">
+            {" "}
+            <button
+              className="bg-green-500 text-white rounded hover:bg-green-700 py-1 px-2 text-sm"
+              onClick={() => console.log(params.data)}
+            >
+              EDIT
+            </button>
+          </div>
+        ),
+      },
     ],
     []
   );
