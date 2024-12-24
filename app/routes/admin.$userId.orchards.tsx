@@ -57,7 +57,7 @@ export default function Index() {
       { field: "irrigation", headerName: "Irrigation" },
       {
         headerName: "Actions",
-        cellRenderer: (params: { data: (typeof orchardData)[0] }) => (
+        cellRenderer: (params: { data: typeof orchardData }) => (
           <div className="flex h-full flex-row items-center">
             {" "}
             <button
