@@ -2,7 +2,7 @@ import { LoaderFunctionArgs } from "@remix-run/node";
 import { ColDef } from "ag-grid-community";
 import { useMemo } from "react";
 import { db } from "~/db";
-import { useLoaderData } from "@remix-run/react";
+import { Outlet, useLoaderData, useNavigate } from "@remix-run/react";
 import { AgGrid } from "~/components/AgGrid";
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -39,6 +39,8 @@ export async function loader({ params }: LoaderFunctionArgs) {
   return { orchardData };
 }
 export default function Index() {
+  const navigate = useNavigate();
+
   // Define column definitions for AgGrid
   const { orchardData } = useLoaderData<typeof loader>();
   const colDefs = useMemo<ColDef<(typeof orchardData)[0]>[]>(
@@ -75,11 +77,22 @@ export default function Index() {
   return (
     <div className="flex flex-col p-5 w-full h-full">
       <div className="flex w-full justify-end my-3">
-        <button className="rounded-md bg-lime-700 text-white hover:bg-lime-800 py-2 px-4">
+        {/*   <NavLink
+          to="add"
+          className="m-2 self-start rounded bg-blue-500 px-4 py-1 text-white hover:bg-blue-800"
+        >
+          Add
+        </NavLink> */}
+
+        <button
+          className="rounded-md bg-lime-700 text-white hover:bg-lime-800 py-2 px-4"
+          onClick={() => navigate("add")}
+        >
           Add
         </button>
-      </div>
+      </div>{" "}
       <AgGrid columnDefs={colDefs} rowData={orchardData} />
+      <Outlet />
     </div>
   );
 }

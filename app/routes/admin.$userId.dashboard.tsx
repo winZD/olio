@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Outlet, useLoaderData } from "@remix-run/react";
 import { useMemo } from "react";
 import { AgGrid } from "~/components/AgGrid";
 import FarmStatus from "~/components/FarmStatus";
@@ -133,8 +133,9 @@ export default function Index() {
         )}
       </ClientOnly>
 
-      <div className="flex flex-col p-5 w-full">
+      <div className="flex flex-col p-5 w-full h-full">
         <AgGrid columnDefs={columnDefs} rowData={orchardData} />
+        <Outlet />
       </div>
     </>
   );

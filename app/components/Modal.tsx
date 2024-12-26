@@ -8,17 +8,24 @@ interface ModalProps {
   onClose?: () => void;
   children: ReactNode;
 }
-const Modal: React.FC<ModalProps> = ({ title, children, onClose, ...rest }) => {
+export const Modal: React.FC<ModalProps> = ({
+  title,
+  children,
+  onClose,
+  ...rest
+}) => {
   const location = useLocation();
+
   const state = useOverlayTriggerState(rest);
 
   const ref = React.useRef(null);
+
   const { modalProps, underlayProps } = useModalOverlay(rest, state, ref);
   return (
     <Overlay>
       <FocusScope contain restoreFocus /* autoFocus */>
         <div
-          className="fixed inset-0 z-10 flex flex-col items-center justify-center p-8 backdrop-brightness-90"
+          className="fixed text-black inset-0 z-10 flex flex-col items-center justify-center p-8 backdrop-brightness-90"
           {...underlayProps}
         >
           <div {...modalProps} ref={ref} className="max-h-full">
@@ -41,5 +48,3 @@ const Modal: React.FC<ModalProps> = ({ title, children, onClose, ...rest }) => {
     </Overlay>
   );
 };
-
-export default Modal;
