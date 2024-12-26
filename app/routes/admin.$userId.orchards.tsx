@@ -61,7 +61,7 @@ export default function Index() {
           <div className="flex h-full flex-row items-center">
             {" "}
             <button
-              className="bg-green-500 text-white rounded hover:bg-green-700 py-1 px-2 text-sm"
+              className="bg-lime-700 text-white rounded hover:bg-lime-800 py-1 px-2 text-sm"
               onClick={() => console.log(params.data)}
             >
               EDIT
@@ -73,9 +73,9 @@ export default function Index() {
     []
   );
   return (
-    <div className="flex flex-col p-5 w-full">
-      <div className="flex w-full justify-end">
-        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+    <div className="flex flex-col p-5 w-full h-full">
+      <div className="flex w-full justify-end my-3">
+        <button className="rounded-md bg-lime-700 text-white hover:bg-lime-800 py-2 px-4">
           Add
         </button>
       </div>
