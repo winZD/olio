@@ -34,7 +34,7 @@ export const Modal: React.FC<ModalProps> = ({
                 <div className="font-semibold">{title}</div>
                 <NavLink
                   to={`..${location.search}`}
-                  onClick={() => onClose?.()}
+                  /* onClick={() => onClose?.()} */
                   className="flex size-10 items-center justify-center hover:bg-red-300"
                 >
                   ✕
