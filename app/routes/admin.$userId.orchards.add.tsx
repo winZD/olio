@@ -1,59 +1,156 @@
-import { Form, useNavigate } from "@remix-run/react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  redirect,
+} from "@remix-run/node";
+import { Form, useLoaderData, useNavigate } from "@remix-run/react";
+import { getValidatedFormData, useRemixForm } from "remix-hook-form";
+import * as zod from "zod";
 import { Modal } from "~/components/Modal";
+import { db } from "~/db";
 
+const schema = zod.object({
+  name: zod.string(),
+  location: zod.string(),
+  area: zod.string(),
+  soilType: zod.string(),
+
+  irrigation: zod.boolean(),
+});
+
+type FormData = zod.infer<typeof schema>;
+
+export async function loader({ params }: LoaderFunctionArgs) {
+  const { userId } = params;
+  const varieties = await db.varietyTable.findMany({
+    where: { orchardUserId: userId },
+  });
+
+  return { varieties };
+}
+export const action = async ({ request, params }: ActionFunctionArgs) => {
+  /*  const schema = zod.object({
+    name: zod.string(),
+    location: zod.string(),
+    area: zod.number(),
+    soilType: zod.string(),
+    tree: zod.number(),
+    harvest: zod.string(),
+    irrigation: zod.boolean(),
+  }); */
+
+  const resolver = zodResolver(schema);
+  const {
+    errors,
+    data,
+    receivedValues: defaultValues,
+  } = await getValidatedFormData<FormData>(request, resolver);
+  console.log(data);
+  if (errors) {
+    // The keys "errors" and "defaultValues" are picked up automatically by useRemixForm
+    console.log(errors);
+    return { errors, defaultValues };
+  }
+
+  if (!data) {
+    return null;
+  }
+  const orchard = await db.orchardTable.create({
+    data: {
+      name: data.name,
+      location: data.location,
+      area: Number(data.area),
+      soilType: data.soilType,
+      irrigation: data.irrigation,
+      userId: params.userId!,
+    },
+  });
+
+  return redirect(`../${orchard.id}`);
+};
 export default function Index() {
-  const navigate = useNavigate();
+  /*   const { varieties } = useLoaderData<typeof loader>();
+   */ const navigate = useNavigate();
+
+  /* const formMethods = useRemixForm<FormData>({
+    mode: "onSubmit",
+    // resolver,
+    defaultValues: {
+      name: "",
+      location: "",
+      area: "",
+      soilType: "",
+
+      irrigation: false,
+    },
+  }); */
+  const {
+    handleSubmit,
+    formState: { errors },
+    register,
+  } = useRemixForm<FormData>({
+    mode: "onSubmit",
+  });
   return (
     <Modal title={"Add orchard"}>
       <Form
         method="POST"
         className="flex flex-col gap-4 rounded border p-6 shadow  justify-center items-center bg-slate-100"
-        /*    onSubmit={handleSubmit} */
+        onSubmit={handleSubmit}
       >
         {" "}
         {/*    <span className="font-bold text-4xl">OLIO</span> */}
         <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-3">
           <div className="flex flex-col gap-2">
             <label htmlFor="location">Name</label>
-            <input
-              id="name"
-              className="rounded"
-              name="name"
-              /*   {...register("email")} */
-            />
+            <input id="name" className="rounded" {...register("name")} />
           </div>
           <div className="flex flex-col gap-2">
             <label htmlFor="location">Location</label>
-            <input id="location" name="location" className="rounded" />
+            <input
+              id="location"
+              className="rounded"
+              {...register("location")}
+            />
           </div>
           <div className="flex flex-col gap-2">
             <label htmlFor="area">Area</label>
-            <input id="area" name="area" className="rounded" />
+            <input id="area" className="rounded" {...register("area")} />
           </div>
           <div className="flex flex-col gap-2">
             <label htmlFor="soilType">Soil type</label>
-            <input id="soilType" name="soilType" className="rounded" />
+            <input
+              id="soilType"
+              className="rounded"
+              {...register("soilType")}
+            />
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label htmlFor="tree">Tree</label>
-            <input id="tree" name="tree" className="rounded" />
-          </div>
-          <div className="flex flex-col gap-2">
-            <label htmlFor="variety">Variety</label>
-            <input id="variety" className="rounded" />
-          </div>
-          <div className="flex flex-col gap-2">
-            <label htmlFor="harvest">Harvest</label>
-            <input id="harvest" name="harvest" className="rounded" />
-          </div>
+          {/*  <div className="flex flex-col gap-2">
+            <label htmlFor="tree">Trees</label>
+            <input id="tree" className="rounded" {...register("tree")} />
+          </div> */}
+          {/*  <div className="flex flex-col gap-2">
+            <label className="flex-1" htmlFor="variety">
+              Variety
+            </label>
+            <select id={"variety"} className="flex-1 rounded border-slate-200">
+              {varieties.map((option) => (
+                <option key={option.id} value={option.name}>
+                  {option.name}
+                </option>
+              ))}
+            </select>
+          </div> */}
+
           <div className="gap-2">
             <label htmlFor="irrigation">Irrigation</label>
             <input
               id="irrigation"
-              name="irrigation"
               type="checkbox"
               className="rounded"
+              {...register("irrigation")}
             />
           </div>
         </div>
