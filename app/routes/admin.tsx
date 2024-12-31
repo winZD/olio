@@ -38,11 +38,21 @@ export default function Index() {
         </button>
       </header>
       <div className="flex flex-grow">
-        <aside className="flex flex-col gap-3 p-8 bg-lime-100">
-          <NavLink className={"uppercase"} to={`${params?.userId}/dashboard`}>
+        <aside className="flex flex-col gap-2  bg-lime-100">
+          <NavLink
+            className={({ isActive }) =>
+              ` uppercase p-4 ${isActive ? "bg-blue-100" : ""}`
+            }
+            to={`${params?.userId}/dashboard`}
+          >
             dashboard
           </NavLink>
-          <NavLink className={"uppercase"} to={`${params?.userId}/orchards`}>
+          <NavLink
+            className={({ isActive }) =>
+              `uppercase p-4 ${isActive ? "bg-blue-100" : ""}`
+            }
+            to={`${params?.userId}/orchards`}
+          >
             orchards
           </NavLink>
         </aside>
