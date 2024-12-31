@@ -21,20 +21,22 @@ model UserTable {
 }
 
 model OrchardTable {
-  id         String          @default(uuid()) // UUID primary key
-  userId     String // Reference to UserTable (user-specific identifier)
-  user       UserTable       @relation(fields: [userId], references: [id]) // Relation to UserTable
-  name       String // Name of the orchard
-  location   String // Orchard location
-  area       Float // Orchard area in hectares
-  soilType   String // e.g., "Sandy", "Clay", "Loam"
-  irrigation Boolean // Whether the orchard has irrigation
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
-  trees      TreeTable[]     @relation(name: "FK_Tree_Orchard") // Relation to trees
-  varieties  VarietyTable[]  @relation(name: "FK_Variety_Orchard") // Relation to varieties
-  harvests   HarvestTable[]  @relation(name: "FK_Harvest_Orchard") // Relation to harvests
-  employees  EmployeeTable[] @relation(name: "FK_Employee_Orchard") // Relation to employees
+  id            String      @default(uuid()) // UUID primary key
+  userId        String // Reference to UserTable (user-specific identifier)
+  user          UserTable   @relation(fields: [userId], references: [id]) // Relation to UserTable
+  name          String // Name of the orchard
+  location      String // Orchard location
+  area          Float // Orchard area in hectares
+  soilType      String // e.g., "Sandy", "Clay", "Loam"
+  irrigation    Boolean // Whether the orchard has irrigation
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  numberOfTrees Int         @default(0) // Number of trees in the orchard
+  trees         TreeTable[] @relation(name: "FK_Tree_Orchard") // Relation to trees
+
+  varieties VarietyTable[]  @relation(name: "FK_Variety_Orchard") // Relation to varieties
+  harvests  HarvestTable[]  @relation(name: "FK_Harvest_Orchard") // Relation to harvests
+  employees EmployeeTable[] @relation(name: "FK_Employee_Orchard") // Relation to employees
 
   // Composite primary key to enforce multi-tenancy
   @@id([id, userId]) // Ensure the combination of 'id' and 'userId' is unique
@@ -55,15 +57,17 @@ model VarietyTable {
 }
 
 model TreeTable {
-  id            String         @id @default(uuid()) // UUID primary key
+  id            String       @id @default(uuid()) // UUID primary key
   plantedDate   DateTime // Date when the tree was planted
   age           Int // Age of the tree in years
   varietyId     String // UUID reference
   orchardId     String // UUID reference
   orchardUserId String // User ID
-  variety       VarietyTable   @relation(name: "FK_Tree_Variety", fields: [varietyId], references: [id]) // Relation to variety
-  orchard       OrchardTable   @relation(name: "FK_Tree_Orchard", fields: [orchardId, orchardUserId], references: [id, userId]) // Relation to orchard
-  harvests      HarvestTable[] @relation(name: "FK_Harvest_Tree") // Relation to harvests
+  variety       VarietyTable @relation(name: "FK_Tree_Variety", fields: [varietyId], references: [id]) // Relation to variety
+
+  orchard OrchardTable @relation(name: "FK_Tree_Orchard", fields: [orchardId, orchardUserId], references: [id, userId]) // Relation to orchard
+
+  harvests HarvestTable[] @relation(name: "FK_Harvest_Tree") // Relation to harvests
 
   @@map("Tree")
 }
