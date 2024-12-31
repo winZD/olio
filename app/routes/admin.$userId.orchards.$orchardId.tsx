@@ -23,7 +23,7 @@ const orchardSchema = zod.object({
       id: zod.string(),
       orchardId: zod.string(),
       name: zod.string().min(1),
-      treeNumber: zod.number().min(1),
+      treeNumber: zod.string().min(1),
     })
   ),
   irrigation: zod.boolean(),
@@ -41,7 +41,8 @@ export async function loader({ params }: LoaderFunctionArgs) {
 }
 
 // Action function
-export const action = async ({ request }: ActionFunctionArgs) => {
+export const action = async ({ request, params }: ActionFunctionArgs) => {
+  const { userId, orchardId } = params;
   const resolver = zodResolver(orchardSchema);
   const {
     errors,
@@ -56,16 +57,38 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   if (!data) return null;
 
-  /*  const orchard = await db.orchardTable.create({
-    data: {
-      name: data.name,
-      location: data.location,
-      area: Number(data.area),
-      soilType: data.soilType,
-      irrigation: data.irrigation,
-      userId: params.userId!,
-    },
-  }); */
+  await db.$transaction(async (tx) => {
+    await tx.orchardTable.update({
+      where: {
+        id_userId: { id: orchardId as string, userId: params.userId as string },
+      },
+      data: {
+        name: data.name,
+        location: data.location,
+        area: Number(data.area),
+        soilType: data.soilType,
+        irrigation: data.irrigation,
+      },
+    });
+
+    await Promise.all(
+      data.varieties.map((variety) =>
+        tx.varietyTable.upsert({
+          where: { id: variety.id },
+          update: {
+            name: variety.name,
+            treeNumber: Number(variety.treeNumber),
+          },
+          create: {
+            ...variety,
+            treeNumber: Number(variety.treeNumber),
+            orchardId: orchardId as string,
+            orchardUserId: userId as string,
+          },
+        })
+      )
+    );
+  });
 
   return {};
 };
@@ -169,7 +192,7 @@ export default function OrchardForm() {
                   id: uuidv4(),
                   orchardId: params.orchardId as string,
                   name: "",
-                  treeNumber: 0,
+                  treeNumber: "",
                 })
               }
             >
@@ -187,7 +210,7 @@ export default function OrchardForm() {
                 />
                 <input
                   className="rounded"
-                  placeholder="Variety Name"
+                  placeholder="Variety number"
                   {...register(`varieties.${index}.treeNumber`)}
                 />
                 <button

@@ -50,6 +50,7 @@ model VarietyTable {
   origin        String? // Optional origin of the variety
   orchardId     String // UUID reference
   orchardUserId String // User ID reference
+  treeNumber    Int          @default(0)
   orchard       OrchardTable @relation(name: "FK_Variety_Orchard", fields: [orchardId, orchardUserId], references: [id, userId]) // Relation to orchard
   trees         TreeTable[]  @relation(name: "FK_Tree_Variety") // Relation to trees
 

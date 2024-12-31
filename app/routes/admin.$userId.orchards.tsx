@@ -110,13 +110,6 @@ export default function Index() {
   return (
     <div className="flex flex-col p-5 w-full h-full">
       <div className="flex w-full justify-end my-3">
-        {/*   <NavLink
-          to="add"
-          className="m-2 self-start rounded bg-blue-500 px-4 py-1 text-white hover:bg-blue-800"
-        >
-          Add
-        </NavLink> */}
-
         <button
           className="rounded-md bg-lime-700 text-white hover:bg-lime-800 py-2 px-4"
           onClick={() => navigate("add")}
