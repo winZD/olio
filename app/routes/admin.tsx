@@ -41,7 +41,7 @@ export default function Index() {
         <aside className="flex flex-col gap-2  bg-lime-100">
           <NavLink
             className={({ isActive }) =>
-              ` uppercase p-4 ${isActive ? "bg-blue-100" : ""}`
+              ` uppercase p-4 ${isActive ? "bg-lime-700" : ""}`
             }
             to={`${params?.userId}/dashboard`}
           >
@@ -49,7 +49,7 @@ export default function Index() {
           </NavLink>
           <NavLink
             className={({ isActive }) =>
-              `uppercase p-4 ${isActive ? "bg-blue-100" : ""}`
+              `uppercase p-4 ${isActive ? "bg-lime-700" : ""}`
             }
             to={`${params?.userId}/orchards`}
           >

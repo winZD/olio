@@ -66,7 +66,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       userId: params.userId!,
     },
   }); */
-  console.log(data);
 
   return {};
 };

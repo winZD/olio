@@ -1,8 +1,13 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { ColDef } from "ag-grid-community";
 import { useMemo } from "react";
 import { db } from "~/db";
-import { Outlet, useLoaderData, useNavigate } from "@remix-run/react";
+import {
+  Outlet,
+  useLoaderData,
+  useNavigate,
+  useSubmit,
+} from "@remix-run/react";
 import { AgGrid } from "~/components/AgGrid";
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -38,9 +43,24 @@ export async function loader({ params }: LoaderFunctionArgs) {
   }));
   return { orchardData };
 }
+
+export const action = async ({ request, params }: ActionFunctionArgs) => {
+  const formData = await request.formData();
+
+  const userId = params.userId as string;
+
+  const id = formData.get("id") as string;
+
+  await db.orchardTable.delete({
+    where: { id_userId: { id: id, userId } },
+  });
+
+  return {};
+};
+
 export default function Index() {
   const navigate = useNavigate();
-
+  const submit = useSubmit();
   // Define column definitions for AgGrid
   const { orchardData } = useLoaderData<typeof loader>();
   const colDefs = useMemo<ColDef<(typeof orchardData)[0]>[]>(
@@ -59,14 +79,27 @@ export default function Index() {
       { field: "irrigation", headerName: "Irrigation" },
       {
         headerName: "Actions",
-        cellRenderer: (params: { data: typeof orchardData }) => (
-          <div className="flex h-full flex-row items-center">
+        cellRenderer: (params: { data: (typeof orchardData)[0] }) => (
+          <div className="flex h-full flex-row items-center gap-1">
             {" "}
             <button
               className="bg-lime-700 text-white rounded hover:bg-lime-800 py-1 px-2 text-sm"
-              onClick={() => console.log(params.data)}
+              onClick={() => console.log(params.data.id)}
             >
               EDIT
+            </button>
+            <button
+              className="bg-red-700 text-white rounded hover:bg-red-800s py-1 px-2 text-sm"
+              onClick={() =>
+                submit(
+                  {
+                    id: params.data.id,
+                  },
+                  { method: "DELETE" }
+                )
+              }
+            >
+              Delete
             </button>
           </div>
         ),
