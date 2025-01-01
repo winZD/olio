@@ -54,7 +54,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
     },
     select: { id: true, location: true },
   });
-
+  console.log("-----------> ", groupedHarvestData);
   const percentages = groupedHarvestData.map((item) => {
     const orchard = orchardLocations.find((o) => o.id === item.orchardId);
     return {

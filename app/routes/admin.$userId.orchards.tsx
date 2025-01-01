@@ -51,6 +51,11 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
   const id = formData.get("id") as string;
 
+  //TODO: Add transaction
+  await db.varietyTable.deleteMany({
+    where: { orchardId: id, orchardUserId: userId },
+  });
+
   await db.orchardTable.delete({
     where: { id_userId: { id: id, userId } },
   });

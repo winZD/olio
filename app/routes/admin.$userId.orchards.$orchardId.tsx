@@ -34,10 +34,10 @@ type FormData = zod.infer<typeof orchardSchema>;
 // Loader function
 export async function loader({ params }: LoaderFunctionArgs) {
   const { userId } = params;
-  const varieties = await db.varietyTable.findMany({
-    where: { orchardUserId: userId },
+  const orchard = await db.orchardTable.findFirst({
+    where: { userId },
   });
-  return { varieties };
+  return { orchard };
 }
 
 // Action function
@@ -96,8 +96,8 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 // Component for Orchard Form
 export default function OrchardForm() {
   const params = useParams();
-  console.log(params);
-  /*  const { varieties } = useLoaderData<typeof loader>(); */
+
+  const { orchard } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
 
   const {
@@ -109,11 +109,11 @@ export default function OrchardForm() {
     mode: "onSubmit",
     resolver: zodResolver(orchardSchema),
     defaultValues: {
-      name: "",
-      location: "",
-      area: "",
-      soilType: "",
-      irrigation: false,
+      name: orchard?.name || "",
+      location: orchard?.location || "",
+      area: orchard?.area.toString() || "",
+      soilType: orchard?.soilType || "",
+      irrigation: orchard?.irrigation || false,
       varieties: [],
     },
   });
