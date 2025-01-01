@@ -50,14 +50,14 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   const userId = params.userId as string;
 
   const id = formData.get("id") as string;
+  await db.$transaction(async (tx) => {
+    await tx.varietyTable.deleteMany({
+      where: { orchardId: id, orchardUserId: userId },
+    });
 
-  //TODO: Add transaction
-  await db.varietyTable.deleteMany({
-    where: { orchardId: id, orchardUserId: userId },
-  });
-
-  await db.orchardTable.delete({
-    where: { id_userId: { id: id, userId } },
+    await tx.orchardTable.delete({
+      where: { id_userId: { id: id, userId } },
+    });
   });
 
   return {};
