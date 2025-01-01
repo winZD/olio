@@ -37,13 +37,14 @@ export async function loader({ params }: LoaderFunctionArgs) {
   const groupedHarvestData = await db.harvestTable.groupBy({
     by: ["orchardId"],
     where: {
-      orchard: { userId },
-      year: currentYear,
+      orchardUserId: userId,
+
+      year: currentYear - 1, //fix this to add year vefore if there is no current year harvest
     },
     _sum: { quantity: true },
     orderBy: { _sum: { quantity: "desc" } },
   });
-
+  console.log("groupedHarvestData", groupedHarvestData);
   // Fetch orchard locations for grouped harvest data
   const orchardLocations = await db.orchardTable.findMany({
     where: {
