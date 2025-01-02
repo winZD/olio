@@ -74,12 +74,12 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
         irrigation: data.irrigation,
       },
     });
-    /*   await tx.varietyTable.deleteMany({
+    await tx.varietyTable.deleteMany({
       where: {
         orchardId: orchardId as string,
         id: { notIn: data.varieties.map((e) => e.id) },
       },
-    }); */
+    });
     await Promise.all(
       data.varieties.map((variety) =>
         tx.varietyTable.upsert({
