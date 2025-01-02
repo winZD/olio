@@ -9,6 +9,7 @@ import { getValidatedFormData, useRemixForm } from "remix-hook-form";
 import * as zod from "zod";
 import { Modal } from "~/components/Modal";
 import { db } from "~/db";
+import { v4 as uuidv4 } from "uuid";
 
 const schema = zod.object({
   name: zod.string(),
@@ -23,6 +24,7 @@ type FormData = zod.infer<typeof schema>;
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { userId } = params;
+
   const varieties = await db.varietyTable.findMany({
     where: { orchardUserId: userId },
   });
@@ -39,7 +41,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     harvest: zod.string(),
     irrigation: zod.boolean(),
   }); */
-
+  const { userId } = params;
   const resolver = zodResolver(schema);
   const {
     errors,
@@ -56,14 +58,20 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   if (!data) {
     return null;
   }
+  if (!userId) {
+    return null;
+  }
+
+  const id = uuidv4();
   const orchard = await db.orchardTable.create({
     data: {
+      /* id, */
       name: data.name,
       location: data.location,
       area: Number(data.area),
       soilType: data.soilType,
       irrigation: data.irrigation,
-      userId: params.userId!,
+      userId,
     },
   });
 

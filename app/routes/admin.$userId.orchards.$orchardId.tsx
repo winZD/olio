@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ActionFunctionArgs,
+  data,
   LoaderFunctionArgs,
   redirect,
 } from "@remix-run/node";
@@ -33,10 +34,13 @@ type FormData = zod.infer<typeof orchardSchema>;
 
 // Loader function
 export async function loader({ params }: LoaderFunctionArgs) {
-  const { userId } = params;
+  const { userId, orchardId } = params;
+  console.log(params);
   const orchard = await db.orchardTable.findFirst({
-    where: { userId },
+    where: { userId, id: orchardId },
+    include: { varieties: true },
   });
+  console.log("----------------------> ", orchard);
   return { orchard };
 }
 
@@ -70,7 +74,12 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
         irrigation: data.irrigation,
       },
     });
-
+    await tx.varietyTable.deleteMany({
+      where: {
+        orchardId: orchardId as string,
+        id: { notIn: data.varieties.map((e) => e.id) },
+      },
+    });
     await Promise.all(
       data.varieties.map((variety) =>
         tx.varietyTable.upsert({
@@ -114,7 +123,10 @@ export default function OrchardForm() {
       area: orchard?.area.toString() || "",
       soilType: orchard?.soilType || "",
       irrigation: orchard?.irrigation || false,
-      varieties: [],
+      varieties: orchard?.varieties?.map((variety) => ({
+        ...variety,
+        treeNumber: variety.treeNumber.toString(), // Ensure it's a string
+      })),
     },
   });
 
@@ -126,7 +138,7 @@ export default function OrchardForm() {
   return (
     <Modal title="Add Orchard">
       <Form
-        method="POST"
+        method="PUT"
         className="flex flex-col gap-4 rounded border p-6 shadow justify-center items-center bg-slate-100"
         onSubmit={handleSubmit}
       >

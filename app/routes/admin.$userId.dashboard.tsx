@@ -44,7 +44,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
     _sum: { quantity: true },
     orderBy: { _sum: { quantity: "desc" } },
   });
-  console.log("groupedHarvestData", groupedHarvestData);
+
   // Fetch orchard locations for grouped harvest data
   const orchardLocations = await db.orchardTable.findMany({
     where: {
