@@ -89,7 +89,7 @@ export default function Index() {
             {" "}
             <button
               className="bg-lime-700 text-white rounded hover:bg-lime-800 py-1 px-2 text-sm"
-              onClick={() => console.log(params.data.id)}
+              onClick={() => navigate(params.data.id)}
             >
               EDIT
             </button>
