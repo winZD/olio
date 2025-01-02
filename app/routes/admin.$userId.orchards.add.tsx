@@ -126,6 +126,7 @@ export default function Index() {
             <label htmlFor="area">Area</label>
             <input
               id="area"
+              type="number"
               className="rounded"
               {...register("area", { valueAsNumber: true })}
             />
