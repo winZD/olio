@@ -12,7 +12,7 @@ import { db } from "~/db";
 import { v4 as uuidv4 } from "uuid";
 
 const schema = zod.object({
-  name: zod.string(),
+  name: zod.string().min(1),
   location: zod.string(),
   area: zod.number().positive().min(1),
   soilType: zod.string(),
@@ -32,15 +32,15 @@ export async function loader({ params }: LoaderFunctionArgs) {
   return { varieties };
 }
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-  /*  const schema = zod.object({
+  /*   const schema = zod.object({
     name: zod.string(),
     location: zod.string(),
     area: zod.number(),
     soilType: zod.string(),
-    tree: zod.number(),
-    harvest: zod.string(),
+
     irrigation: zod.boolean(),
-  }); */
+  });
+  type FormData = zod.infer<typeof schema>; */
   const { userId } = params;
   const resolver = zodResolver(schema);
   const {
@@ -99,6 +99,13 @@ export default function Index() {
     register,
   } = useRemixForm<FormData>({
     mode: "onSubmit",
+    defaultValues: {
+      name: "",
+      location: "",
+      area: 0,
+      soilType: "",
+      irrigation: false,
+    },
   });
   return (
     <Modal title={"Add orchard"}>
