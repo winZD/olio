@@ -14,7 +14,7 @@ import { v4 as uuidv4 } from "uuid";
 const schema = zod.object({
   name: zod.string(),
   location: zod.string(),
-  area: zod.string(),
+  area: zod.number().positive().min(1),
   soilType: zod.string(),
 
   irrigation: zod.boolean(),
@@ -68,7 +68,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
       /* id, */
       name: data.name,
       location: data.location,
-      area: Number(data.area),
+      area: data.area,
       soilType: data.soilType,
       irrigation: data.irrigation,
       userId,
@@ -124,7 +124,11 @@ export default function Index() {
           </div>
           <div className="flex flex-col gap-2">
             <label htmlFor="area">Area</label>
-            <input id="area" className="rounded" {...register("area")} />
+            <input
+              id="area"
+              className="rounded"
+              {...register("area", { valueAsNumber: true })}
+            />
           </div>
           <div className="flex flex-col gap-2">
             <label htmlFor="soilType">Soil type</label>
