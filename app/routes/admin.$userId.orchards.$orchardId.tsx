@@ -61,6 +61,12 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
   if (!data) return null;
 
+  const treesPerOrchardCount = data?.varieties.reduce(
+    (accumulator, currentValue) =>
+      accumulator + Number(currentValue.treeNumber),
+    0
+  );
+
   await db.$transaction(async (tx) => {
     await tx.orchardTable.update({
       where: {
@@ -72,6 +78,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
         area: Number(data.area),
         soilType: data.soilType,
         irrigation: data.irrigation,
+        numberOfTrees: treesPerOrchardCount,
       },
     });
     await tx.varietyTable.deleteMany({

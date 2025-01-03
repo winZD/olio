@@ -37,6 +37,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
     location: orchard.location,
     soilType: orchard.soilType,
     irrigation: orchard.irrigation,
+    numberOfTrees: orchard.numberOfTrees,
     trees: orchard.trees.length,
     varieties: orchard.varieties.length,
     varietyNames: orchard.varieties.map((v) => v.name).join(", "),
@@ -74,7 +75,7 @@ export default function Index() {
       { field: "area", headerName: "Area" },
       { field: "location", headerName: "Location" },
       { field: "soilType", headerName: "Soil Type" },
-      { field: "trees", headerName: "Trees" },
+      { field: "numberOfTrees", headerName: "Trees" },
       { field: "varieties", headerName: "Varieties" },
       {
         field: "varietyNames",
