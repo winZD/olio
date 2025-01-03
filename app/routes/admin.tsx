@@ -55,6 +55,14 @@ export default function Index() {
           >
             orchards
           </NavLink>
+          <NavLink
+            className={({ isActive }) =>
+              `uppercase p-4 ${isActive ? "bg-lime-700" : ""}`
+            }
+            to={`${params?.userId}/harvests`}
+          >
+            harvests
+          </NavLink>
         </aside>
         <main className="flex flex-col justify-center items-center w-full">
           <Outlet />
