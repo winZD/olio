@@ -149,8 +149,22 @@ export default function OrchardForm() {
         className="flex flex-col gap-4 rounded border p-6 shadow justify-center items-center bg-slate-100"
         onSubmit={handleSubmit}
       >
+        <button
+          type="button"
+          className="bg-green-500 text-white px-4 rounded self-end"
+          onClick={() =>
+            append({
+              id: uuidv4(),
+              orchardId: params.orchardId as string,
+              name: "",
+              treeNumber: "",
+            })
+          }
+        >
+          Add Variety
+        </button>
         <div className="flex gap-4">
-          <div className="grid md:grid-cols-1 xl:grid-cols-2 gap-3">
+          <div className="grid md:grid-cols-1 xl:grid-cols-2 gap-3 border p-2">
             <div className="flex flex-col gap-2">
               <label htmlFor="name">Name</label>
               <input id="name" className="rounded" {...register("name")} />
@@ -203,22 +217,6 @@ export default function OrchardForm() {
           </div>
 
           <div className="flex flex-col gap-2 border">
-            <button
-              type="button"
-              className="bg-green-500 text-white px-4 rounded"
-              onClick={() =>
-                append({
-                  id: uuidv4(),
-                  orchardId: params.orchardId as string,
-                  name: "",
-                  treeNumber: "",
-                })
-              }
-            >
-              Add Variety
-            </button>
-
-            <label htmlFor="varieties">Varieties</label>
             {fields.map((field, index) => (
               <div key={field.id} className="flex gap-2 justify-evenly">
                 <span>{`${index + 1 + "."}`}</span>

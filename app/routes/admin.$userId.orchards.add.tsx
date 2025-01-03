@@ -111,12 +111,12 @@ export default function Index() {
     <Modal title={"Add orchard"}>
       <Form
         method="POST"
-        className="flex flex-col gap-4 rounded border p-6 shadow  justify-center items-center bg-slate-100"
+        className="flex flex-col gap-4 p-6 shadow border justify-center items-center bg-slate-100"
         onSubmit={handleSubmit}
       >
         {" "}
         {/*    <span className="font-bold text-4xl">OLIO</span> */}
-        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-3">
+        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-3 border p-2">
           <div className="flex flex-col gap-2">
             <label htmlFor="location">Name</label>
             <input id="name" className="rounded" {...register("name")} />
