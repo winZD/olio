@@ -98,7 +98,7 @@ export default function Index() {
     defaultValues: {
       year: harvest
         ? new Date(harvest.year, 0, 1) // Ensure the date is constructed correctly
-        : new Date(new Date().getFullYear(), 0, 1), // Default to the current year, first day
+        : undefined,
       quality: harvest?.quantity.toString() || undefined,
       quantity: harvest?.quantity || undefined,
     },
