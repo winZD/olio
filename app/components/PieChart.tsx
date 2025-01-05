@@ -5,12 +5,12 @@ import { Pie } from "react-chartjs-2";
 Chart.register(ArcElement, Tooltip, Legend);
 
 interface PieChartProps {
-  data: { location: string; percentage: string }[];
+  data: { name: string; percentage: string }[];
 }
 
 const PieChart: React.FC<PieChartProps> = ({ data }) => {
   const chartData = {
-    labels: data.map((item) => item.location),
+    labels: data.map((item) => item.name),
     datasets: [
       {
         data: data.map((item) => parseFloat(item.percentage)),

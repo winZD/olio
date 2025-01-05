@@ -22,10 +22,8 @@ export async function loader({ params }: LoaderFunctionArgs) {
     Prisma.sql`
       SELECT 
         COALESCE((SELECT SUM(o.area) FROM Orchard o WHERE o.userId = ${userId}), 0) AS totalArea,
-        COALESCE((SELECT COUNT(v.id) 
-          FROM Variety v
-          INNER JOIN Orchard o ON v.orchardId = o.id AND v.orchardUserId = o.userId 
-          WHERE o.userId = ${userId}), 0) AS treeCount,
+        COALESCE((SELECT SUM(o.numberOfTrees) FROM Orchard o WHERE o.userId = ${userId}), 0) AS treeCount,
+
         COALESCE((SELECT SUM(h.quantity) 
           FROM Harvest h
           INNER JOIN Orchard o ON h.orchardId = o.id AND h.orchardUserId = o.userId 
@@ -53,14 +51,14 @@ export async function loader({ params }: LoaderFunctionArgs) {
         in: groupedHarvestData.map((data) => data.orchardId),
       },
     },
-    select: { id: true, location: true },
+    select: { id: true, location: true, name: true },
   });
   console.log("-----------> ", groupedHarvestData);
   const percentages = groupedHarvestData.map((item) => {
     const orchard = orchardLocations.find((o) => o.id === item.orchardId);
     return {
       id: orchard?.id,
-      location: orchard?.location || "Unknown",
+      name: orchard?.name || "Unknown",
       percentage: (
         ((item._sum.quantity || 0) / overallStats.totalQuantity) *
         100
