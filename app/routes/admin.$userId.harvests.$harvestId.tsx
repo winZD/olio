@@ -99,7 +99,7 @@ export default function Index() {
       year: harvest
         ? new Date(harvest.year, 0, 1) // Ensure the date is constructed correctly
         : undefined,
-      quality: harvest?.quantity.toString() || undefined,
+      quality: harvest?.quality || undefined,
       quantity: harvest?.quantity || undefined,
     },
   });
