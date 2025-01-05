@@ -8,7 +8,7 @@ import { ColDef } from "node_modules/ag-grid-community/dist/types/src/entities/c
 import { useMemo } from "react";
 import { AgGrid } from "~/components/AgGrid";
 
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { db } from "~/db";
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -20,6 +20,17 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
   return { harvestData };
 }
+
+export const action = async ({ request, params }: ActionFunctionArgs) => {
+  const formData = await request.formData();
+
+  const userId = params.userId as string;
+
+  const id = formData.get("id") as string;
+  await db.harvestTable.delete({ where: { id, orchardUserId: userId } });
+
+  return {};
+};
 
 export default function Index() {
   const navigate = useNavigate();

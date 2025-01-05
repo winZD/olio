@@ -22,9 +22,9 @@ export async function loader({ params }: LoaderFunctionArgs) {
     Prisma.sql`
       SELECT 
         COALESCE((SELECT SUM(o.area) FROM Orchard o WHERE o.userId = ${userId}), 0) AS totalArea,
-        COALESCE((SELECT COUNT(t.id) 
-          FROM Tree t
-          INNER JOIN Orchard o ON t.orchardId = o.id AND t.orchardUserId = o.userId 
+        COALESCE((SELECT COUNT(v.id) 
+          FROM Variety v
+          INNER JOIN Orchard o ON v.orchardId = o.id AND v.orchardUserId = o.userId 
           WHERE o.userId = ${userId}), 0) AS treeCount,
         COALESCE((SELECT SUM(h.quantity) 
           FROM Harvest h
@@ -35,7 +35,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
   // Group harvest data by orchard
   const groupedHarvestData = await db.harvestTable.groupBy({
-    by: ["orchardId"],
+    by: ["orchardId", "orchardUserId"],
     where: {
       orchardUserId: userId,
 

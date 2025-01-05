@@ -14,7 +14,12 @@ import { Controller } from "react-hook-form";
 import "react-datepicker/dist/react-datepicker.css";
 
 const schema = zod.object({
-  year: zod.date(),
+  year: zod
+    .string()
+    /*   .refine((value) => !isNaN(new Date(value).getTime()), {
+      message: "Invalid date format",
+    }) */
+    .transform((value) => new Date(value)),
   quantity: zod.number().positive().min(1),
   quality: zod.string().min(1),
   orchardId: zod.string(),
@@ -37,12 +42,13 @@ export async function loader({ params }: LoaderFunctionArgs) {
 export const action = async ({ request, params }: ActionFunctionArgs) => {
   const { userId } = params;
   const resolver = zodResolver(schema);
+
   const {
     errors,
     data,
     receivedValues: defaultValues,
   } = await getValidatedFormData<FormData>(request, resolver);
-  console.log(data);
+
   if (errors) {
     // The keys "errors" and "defaultValues" are picked up automatically by useRemixForm
     console.log(errors);
@@ -61,8 +67,8 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
       year: data.year.getFullYear(),
       quantity: data.quantity,
       quality: data.quality,
-      orchardId: "00b41706-d994-4d7a-aaa7-7b19f18fb8f4",
-      treeId: "",
+      orchardId: data.orchardId,
+      treeId: "0008f2f4-0bf6-4e98-96e5-d33fa9d6ffa7",
       orchardUserId: userId,
     },
   });
