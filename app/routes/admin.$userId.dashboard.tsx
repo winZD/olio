@@ -77,7 +77,6 @@ export async function loader({ params }: LoaderFunctionArgs) {
   // Orchard data with tree details
   const orchardData = await db.orchardTable.findMany({
     where: { userId },
-    include: { trees: true },
   });
 
   return {

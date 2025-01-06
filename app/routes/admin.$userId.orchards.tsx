@@ -21,7 +21,6 @@ export async function loader({ params }: LoaderFunctionArgs) {
   const orchards = await db.orchardTable.findMany({
     where: { userId },
     include: {
-      trees: true,
       varieties: {
         select: {
           name: true,
@@ -38,7 +37,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
     soilType: orchard.soilType,
     irrigation: orchard.irrigation,
     numberOfTrees: orchard.numberOfTrees,
-    trees: orchard.trees.length,
+
     varieties: orchard.varieties.length,
     varietyNames: orchard.varieties.map((v) => v.name).join(", "),
   }));
