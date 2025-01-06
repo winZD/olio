@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@remix-run/react";
 import { getValidatedFormData, useRemixForm } from "remix-hook-form";
 import { createHeaderCookies, createNewTokens } from "~/auth";
+import bcrypt from "bcryptjs";
 import { db } from "~/db";
 /* import { parse } from "cookie"; */
 
@@ -52,7 +53,11 @@ export async function action({ request }: ActionFunctionArgs) {
     user?.id as string
   );
 
-  // const isValid = await bcrypt.compare(data.password, user.password);
+  const isValid = await bcrypt.compare(data.password, user.password);
+  if (!isValid) {
+    console.log("Invalid credentials");
+    return { status: 401, message: "Invalid credentials" };
+  }
 
   const headers = createHeaderCookies(accessToken, refreshToken);
   return redirect(`/admin/${user?.id}/dashboard`, { headers });
