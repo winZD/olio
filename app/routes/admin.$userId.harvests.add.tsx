@@ -14,12 +14,7 @@ import { Controller } from "react-hook-form";
 import "react-datepicker/dist/react-datepicker.css";
 
 const schema = zod.object({
-  year: zod
-    .string()
-    /*   .refine((value) => !isNaN(new Date(value).getTime()), {
-      message: "Invalid date format",
-    }) */
-    .transform((value) => new Date(value)),
+  year: zod.coerce.date(),
   quantity: zod.number().positive().min(1),
   quality: zod.string().min(1),
   orchardId: zod.string(),

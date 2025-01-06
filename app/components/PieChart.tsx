@@ -9,6 +9,12 @@ interface PieChartProps {
 }
 
 const PieChart: React.FC<PieChartProps> = ({ data }) => {
+  if (data.length === 0) {
+    return (
+      <div className="text-center p-5 text-base text-gray-500">No data</div>
+    );
+  }
+
   const chartData = {
     labels: data.map((item) => item.name),
     datasets: [
