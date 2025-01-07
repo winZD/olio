@@ -33,9 +33,12 @@ export default function Index() {
     <div className="bg-slate-50 flex flex-col text-black min-h-screen">
       <header className="flex items-center justify-between gap-8 border-b p-2 bg-lime-100">
         <h1 className="text-2xl">OLIO</h1>
-        <button className="rounded-md bg-lime-700 text-white hover:bg-lime-800 p-2">
+        <NavLink
+          className="rounded-md bg-lime-700 text-white hover:bg-lime-800 p-2"
+          to={`/logout`}
+        >
           Odjavi se
-        </button>
+        </NavLink>
       </header>
       <div className="flex flex-grow">
         <aside className="flex flex-col gap-2  bg-lime-100">

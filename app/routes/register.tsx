@@ -4,6 +4,8 @@ import * as zod from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@remix-run/react";
 import { getValidatedFormData, useRemixForm } from "remix-hook-form";
+import { hashPassword } from "~/auth";
+import { db } from "~/db";
 
 /* import { parse } from "cookie"; */
 
@@ -40,8 +42,11 @@ export async function action({ request }: ActionFunctionArgs) {
   if (!data) {
     return null;
   }
-
-  return redirect(`/`);
+  const password = await hashPassword(data.password);
+  await db.userTable.create({
+    data: { name: data.name, email: data.email, password },
+  });
+  return redirect(`/login`);
 }
 export default function Index() {
   /* const actionData = useActionData<typeof action>();  */

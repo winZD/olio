@@ -113,9 +113,9 @@ export default function Index() {
   return (
     <>
       <FarmStatus
-        area={totalArea}
-        trees={Number(treeCount)}
-        production={Number(totalQuantity.toFixed(2))}
+        area={totalArea ? totalArea : 0}
+        trees={treeCount ? Number(treeCount) : 0}
+        production={totalQuantity ? Number(totalQuantity.toFixed(2)) : 0}
       />
 
       <ClientOnly fallback={<div>Loading...</div>}>
