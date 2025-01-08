@@ -1,6 +1,7 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { NavLink, Outlet, useParams } from "@remix-run/react";
 import { parse } from "cookie";
+import { useState } from "react";
 import { getUserFromRequest } from "~/auth";
 import { db } from "~/db";
 
@@ -27,12 +28,19 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export default function Index() {
   const params = useParams();
+  const [isOpen, setIsOpen] = useState(false);
 
   console.log(params);
   return (
     <div className="bg-slate-50 flex flex-col text-black min-h-screen">
       <header className="flex items-center justify-between gap-8 border-b p-2 bg-lime-100">
-        <h1 className="text-2xl">OLIO</h1>
+        <h1 className="text-2xl md:inline hidden">OLIO</h1>
+        <button
+          className="text-2xl inline md:hidden"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          Mobile
+        </button>
         <NavLink
           className="rounded-md bg-lime-700 text-white hover:bg-lime-800 p-2"
           to={`/logout`}
@@ -40,8 +48,36 @@ export default function Index() {
           Odjavi se
         </NavLink>
       </header>
+      {isOpen && (
+        <div className="flex flex-col gap-2 md:hidden bg-lime-100">
+          <NavLink
+            className={({ isActive }) =>
+              ` uppercase p-4 ${isActive ? "bg-lime-700" : ""}`
+            }
+            to={`${params?.userId}/dashboard`}
+          >
+            dashboard
+          </NavLink>
+          <NavLink
+            className={({ isActive }) =>
+              `uppercase p-4 ${isActive ? "bg-lime-700" : ""}`
+            }
+            to={`${params?.userId}/orchards`}
+          >
+            orchards
+          </NavLink>
+          <NavLink
+            className={({ isActive }) =>
+              `uppercase p-4 ${isActive ? "bg-lime-700" : ""}`
+            }
+            to={`${params?.userId}/harvests`}
+          >
+            harvests
+          </NavLink>
+        </div>
+      )}
       <div className="flex flex-grow">
-        <aside className="flex flex-col gap-2  bg-lime-100">
+        <aside className="hidden md:flex flex-col gap-2 bg-lime-100">
           <NavLink
             className={({ isActive }) =>
               ` uppercase p-4 ${isActive ? "bg-lime-700" : ""}`
