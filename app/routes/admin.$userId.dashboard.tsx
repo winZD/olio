@@ -37,7 +37,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
     where: {
       orchardUserId: userId,
 
-      year: currentYear - 1, //fix this to add year vefore if there is no current year harvest
+      year: currentYear, //fix this to add year vefore if there is no current year harvest
     },
     _sum: { quantity: true },
     orderBy: { _sum: { quantity: "desc" } },
